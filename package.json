@@ -1,0 +1,32 @@
+{
+  "name": "Firmware-WebHandler",
+  "version": "1.0.0",
+  "description": "Web service for handle multi device firmware files and indexes.",
+  "main": "index.js",
+  "repository": "https://github.com/SzomorXVigyor/Firmware-WebHandler",
+  "author": "Aranyalma2",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "firmware",
+    "management",
+    "server",
+    "api",
+    "upload",
+    "download"
+  ],
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.0",
+    "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "semver": "^7.7.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
