@@ -1,5 +1,5 @@
 const renderHomePage = (req, res) => {
-	res.send(`
+    res.send(`
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -143,5 +143,5 @@ const renderHomePage = (req, res) => {
 };
 
 module.exports = {
-	renderHomePage,
+    renderHomePage
 };

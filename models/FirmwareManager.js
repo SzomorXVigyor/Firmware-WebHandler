@@ -1,7 +1,7 @@
-const fs = require('fs');
-const semver = require('semver');
-const { v4: uuidv4 } = require('uuid');
-const config = require('../config/config');
+const fs = require("fs");
+const semver = require("semver");
+const { v4: uuidv4 } = require("uuid");
+const config = require("../config/config");
 
 class FirmwareManager {
     constructor() {
@@ -11,16 +11,16 @@ class FirmwareManager {
     loadData() {
         try {
             if (fs.existsSync(config.DATA_FILE)) {
-                return JSON.parse(fs.readFileSync(config.DATA_FILE, 'utf8'));
+                return JSON.parse(fs.readFileSync(config.DATA_FILE, "utf8"));
             }
         } catch (error) {
-            console.error('Error loading data:', error);
+            console.error("Error loading data:", error);
         }
         return {
             users: [{
-                id: '1',
-                username: 'admin',
-                password: '$2a$12$uxVJ1DzzFDanM4ARDrbIR.E2WDwK.LtsyanVIWp/xhzkoaiTSuWZ2',
+                id: "1",
+                username: "admin",
+                password: "$2a$12$uxVJ1DzzFDanM4ARDrbIR.E2WDwK.LtsyanVIWp/xhzkoaiTSuWZ2"
             }],
             firmwares: []
         };
@@ -29,13 +29,13 @@ class FirmwareManager {
     saveData() {
         try {
             // Ensure the data directory exists
-            const dataDir = config.DATA_FILE.substring(0, config.DATA_FILE.lastIndexOf('/'));
+            const dataDir = config.DATA_FILE.substring(0, config.DATA_FILE.lastIndexOf("/"));
             if (!fs.existsSync(dataDir)) {
                 fs.mkdirSync(dataDir, { recursive: true });
             }
             fs.writeFileSync(config.DATA_FILE, JSON.stringify(this.data, null, 2));
         } catch (error) {
-            console.error('Error saving data:', error);
+            console.error("Error saving data:", error);
         }
     }
 

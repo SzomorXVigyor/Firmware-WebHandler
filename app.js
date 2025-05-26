@@ -1,9 +1,8 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const config = require('./config/config');
-const middleware = require('./middleware');
-const routes = require('./routes');
+const express = require("express");
+const fs = require("fs");
+const config = require("./config/config");
+const middleware = require("./middleware");
+const routes = require("./routes");
 
 const app = express();
 
