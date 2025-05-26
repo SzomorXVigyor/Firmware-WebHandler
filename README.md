@@ -1,11 +1,13 @@
-# 🔧 Firmware Management Server
+<h1 align="center">🔧 A Simple Firmware Management Server </h1>
+<p align="center">
+<img alt="Node Version" src="https://img.shields.io/badge/Node.js-v18+-green">
+<img alt="Express" src="https://img.shields.io/badge/Express-4.18+-blue">
+<img alt="Bootstrap" src="https://img.shields.io/badge/Bootstrap-5.3-purple">
+<img alt="Latest release" src="https://img.shields.io/github/v/release/Aranyalma2/Firmware-WebManager">
+<img alt="License" src="https://img.shields.io/badge/License-MIT-yellow">
 
 A comprehensive web-based firmware management system with REST API for IoT devices, microcontrollers, and embedded systems. Easily manage, version, and distribute firmware updates across multiple hardware platforms.
-
-![Node.js](https://img.shields.io/badge/Node.js-v18+-green)
-![Express](https://img.shields.io/badge/Express-4.18+-blue)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+</p>
 
 ## ✨ Features
 
@@ -41,12 +43,12 @@ A comprehensive web-based firmware management system with REST API for IoT devic
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Web Interface │────▶│  Express Server  │────▶│  File Storage   │
+│  Web Interface  │────>│  Express Server  │────>│  File Storage   │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
-                                │
-                                ▼
+                                 │
+                                 v
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Hardware APIs  │────▶│   REST API       │────▶│ JSON Database   │
+│  Hardware APIs  │────>│     REST API     │────>│  JSON Database  │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
 ```
 
@@ -115,31 +117,6 @@ curl "http://your-server.com/api/firmwares?device=ESP32-DevKit"
 curl -O "http://your-server.com/downloads/firmware-filename.bin"
 ```
 
-#### Arduino/ESP32 Integration Example
-```cpp
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
-
-void checkForUpdates() {
-    HTTPClient http;
-    http.begin("http://your-server.com/api/firmwares?device=ESP32-DevKit");
-    
-    int httpCode = http.GET();
-    if (httpCode == 200) {
-        String payload = http.getString();
-        DynamicJsonDocument doc(4096);
-        deserializeJson(doc, payload);
-        
-        String latestVersion = doc[0]["version"];
-        if (isNewerVersion(latestVersion, CURRENT_VERSION)) {
-            // Download and install update
-            downloadFirmware(doc[0]["filename"]);
-        }
-    }
-    http.end();
-}
-```
-
 ## 🔌 API Reference
 
 ### **Public Endpoints** (No Authentication)
@@ -167,6 +144,7 @@ void checkForUpdates() {
   "filename": "1703123456789-uuid.bin",
   "originalName": "esp32_firmware_v2.1.0.bin",
   "size": 1048576,
+  "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
   "uploadedBy": "admin",
   "uploadDate": "2024-12-21T10:30:45.123Z"
 }
@@ -197,6 +175,7 @@ MAX_FILE_SIZE=100*1024*1204
 
 ### Adding New Users
 Edit `firmware_data.json` after first run:
+(Note: Use a bcrypt hasher for password)
 ```json
 {
   "users": [

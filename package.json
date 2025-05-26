@@ -1,14 +1,14 @@
 {
-  "name": "Firmware-WebHandler",
+  "name": "firmware-webmanager",
   "version": "1.0.0",
   "description": "Web service for handle multi device firmware files and indexes.",
   "main": "index.js",
-  "repository": "https://github.com/SzomorXVigyor/Firmware-WebHandler",
+  "repository": "https://github.com/SzomorXVigyor/Firmware-WebManager",
   "author": "Aranyalma2",
   "license": "MIT",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "keywords": [
     "firmware",
