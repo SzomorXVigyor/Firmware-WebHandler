@@ -89,8 +89,14 @@ yarn start
 
 ### Core Endpoints
 ```bash
-# Get WebUI
+# Get WebUI Pages
 GET /
+GET /firmwares
+GET /statistics
+GET /upload
+
+# Login on Backend
+POST /api/login
 
 # Get all device types
 GET /api/devices

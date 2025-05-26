@@ -1,3 +1,8 @@
+/* eslint-disable no-underscore-dangle */
+/**
+ * _id is used intentionally as this file interfaces with MongoDB,
+ * which uses _id as the primary identifier for documents.
+ */
 const { MongoClient, GridFSBucket } = require("mongodb");
 const { v4: uuidv4 } = require("uuid");
 const IFirmwareStorage = require("../interfaces/IFirmwareStorage");
@@ -167,10 +172,11 @@ class MongoDBStorage extends IFirmwareStorage {
 	 * Add firmware without transaction support (standalone MongoDB)
 	 */
 	async addFirmwareWithoutTransaction(firmware, fileBuffer) {
+        let fileId = "";
 		try {
 			// Generate unique IDs
 			const firmwareId = uuidv4();
-			const fileId = `${Date.now()}-${uuidv4()}.${this.getFileExtension(firmware.originalName)}`;
+			fileId = `${Date.now()}-${uuidv4()}.${this.getFileExtension(firmware.originalName)}`;
 
 			// Upload file to GridFS first
 			const uploadStream = this.gridFSBucket.openUploadStream(fileId, {
