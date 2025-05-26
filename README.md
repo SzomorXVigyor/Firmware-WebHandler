@@ -3,18 +3,27 @@
 <img alt="Node Version" src="https://img.shields.io/badge/Node.js-v18+-green">
 <img alt="Express" src="https://img.shields.io/badge/Express-4.18+-blue">
 <img alt="Bootstrap" src="https://img.shields.io/badge/Bootstrap-5.3-purple">
-<img alt="Latest release" src="https://img.shields.io/github/v/release/Aranyalma2/Firmware-WebManager">
+<img alt="Storage Types" src="https://img.shields.io/badge/Storage-FileSystem%20%7C%20MongoDB%20%7C%20PostgreSQL-purple">
+<img alt="Latest release" src="https://img.shields.io/github/v/release/SzomorXVigyor/Firmware-WebManager">
 <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow">
 
-A comprehensive web-based firmware management system with REST API for IoT devices, microcontrollers, and embedded systems. Easily manage, version, and distribute firmware updates across multiple hardware platforms.
+A comprehensive web-based firmware management system with REST API for IoT devices, microcontrollers, and embedded systems. Easily manage, version, and distribute firmware updates across multiple hardware platforms. Support multiple simple or high availability, scalable datastore technologies.
 </p>
 
 ## ✨ Features
 
-### 🔐 **Secure Management**
+
+### 🚀 **Modern Architecture**
+- **Async-first design** with Promise-based API
+- **Pluggable storage backends** with unified interface
+- **Clean dependency injection** and factory pattern
+- **Memory-efficient file handling** with streams
+
+### 🔐 **Secure by Design**
 - JWT-based authentication for firmware uploads
 - Protected admin interface with role-based access
 - Public API for device firmware queries and downloads
+- Environment-based configuration
 
 ### 📱 **Multi-Device Support**
 - Manage firmware for unlimited device types
@@ -27,30 +36,16 @@ A comprehensive web-based firmware management system with REST API for IoT devic
 - Real-time firmware browsing and filtering
 - Mobile-friendly design
 
-### 🚀 **RESTful API**
+### 🌐 **RESTful API**
 - Complete REST API for device integration
 - JSON responses with comprehensive metadata
 - Direct binary file downloads
 - Hardware-friendly endpoints
 
-### 💾 **Robust Storage**
-- Persistent JSON-based data storage
-- Automatic file organization
-- UUID-based file naming for conflict prevention
-- Metadata tracking (version, description, upload date)
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Web Interface  │────>│  Express Server  │────>│  File Storage   │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                                 │
-                                 v
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Hardware APIs  │────>│     REST API     │────>│  JSON Database  │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-```
+### 💾 **Multiple Storage Options**
+- **FileSystem**: Simple JSON + file storage
+- **MongoDB GridFS**: Scalable document database
+- **PostgreSQL**: Enterprise-grade relational storage (NOT IMPLEMENTED YET)
 
 ## 🚀 Quick Start
 
@@ -59,32 +54,73 @@ A comprehensive web-based firmware management system with REST API for IoT devic
 - At least 1GB free disk space for firmware storage
 
 ### Installation
+```bash
+git clone https://github.com/SzomorXVigyor/Firmware-WebManager.git
+cd Firmware-WebManager
+yarn install
+cp .env.example .env
+```
 
-1. **Clone or download the project files**
-   ```bash
-   # Create project directory
-   mkdir firmware-server
-   cd firmware-server
-   ```
+### Choose Storage Backend
+```bash
+# FileSystem (Default)
+export STORAGE_TYPE=filesystem
 
-2. **Install dependencies**
-   ```bash
-   yarn install
-   ```
+# MongoDB
+export STORAGE_TYPE=mongodb
+export MONGODB_URI=mongodb://localhost:27017
 
-3. **Start the server**
-   ```bash
-   # Production
-   yarn start
-   
-   # Development (with auto-reload)
-   yarn dev
-   ```
+# PostgreSQL
+export STORAGE_TYPE=postgresql
+export POSTGRESQL_URI=postgresql://postgres:password@localhost:5432/firmware_manager
+```
 
-4. **Access the application**
-   - **Web Interface**: http://localhost:3000
-   - **API Base URL**: http://localhost:3000/api
-   - **Default Credentials**: `admin` / `admin123`
+### Start Application
+```bash
+yarn start
+```
+
+### Access
+- **Web Interface**: http://localhost:3000
+- **API**: http://localhost:3000/api
+- **Credentials**: `admin` / `admin123`
+
+## 📖 API Reference
+
+### Core Endpoints
+```bash
+# Get WebUI
+GET /
+
+# Get all device types
+GET /api/devices
+
+# Get firmwares (with optional filtering)
+GET /api/firmwares
+GET /api/firmwares?device=ESP32-DevKit
+GET /api/firmwares?search=bluetooth
+
+# Get specific firmware
+GET /api/firmware/{id}
+
+# Download firmware
+GET /api/firmware/{id}/download
+
+# Upload firmware (authenticated)
+POST /api/firmware/upload
+
+# Update firmware metadata (authenticated)
+PUT /api/firmware/{id}
+
+# Delete firmware (authenticated)
+DELETE /api/firmware/{id}
+
+# Statistics
+GET /api/firmwares/stats
+
+# Health check
+GET /api/health
+```
 
 ## 📖 Usage Guide
 
@@ -117,23 +153,6 @@ curl "http://your-server.com/api/firmwares?device=ESP32-DevKit"
 curl -O "http://your-server.com/downloads/firmware-filename.bin"
 ```
 
-## 🔌 API Reference
-
-### **Public Endpoints** (No Authentication)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/devices` | List all device types |
-| `GET` | `/api/firmwares` | List all firmwares |
-| `GET` | `/api/firmwares?device=<type>` | Filter by device type |
-| `GET` | `/api/firmware/<id>` | Get specific firmware |
-| `GET` | `/downloads/<filename>` | Download firmware file |
-
-### **Protected Endpoints** (Authentication Required)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/login` | Authenticate user |
-| `POST` | `/api/firmware/upload` | Upload new firmware |
-
 ### **Response Example**
 ```json
 {
@@ -152,81 +171,8 @@ curl -O "http://your-server.com/downloads/firmware-filename.bin"
 
 📚 **[Complete API Documentation](API_Documentation.md)**
 
-## ⚙️ Configuration
-
-### Environment Variables
-```bash
-PORT=3000                    # Server port (default: 3000)
-JWT_SECRET=your-secret-key   # JWT signing secret
-MAX_FILE_SIZE=100*1024*1204
-```
-
-### Security Settings
-- **JWT Token Expiry**: 24 hours
-- **File Upload Limit**: 100MB
-- **Supported File Types**: All binary files
-
-### Storage Locations
-- **Firmware Files**: `./uploads/` directory
-- **Metadata Database**: `./firmware_data.json`
-- **Default Admin**: Username: `admin`, Password: `admin123`
-
-## 🔧 Customization
-
-### Adding New Users
-Edit `firmware_data.json` after first run:
-(Note: Use a bcrypt hasher for password)
-```json
-{
-  "users": [
-    {
-      "id": "1",
-      "username": "admin",
-      "password": "$2b$10$hashedpassword"
-    }
-  ]
-}
-```
-
 ### Custom Device Types
 Device types are automatically created when uploading firmware. No pre-configuration needed.
-
-## 🚀 Deployment
-
-### Development
-```bash
-yarn run dev  # Uses nodemon for auto-reload
-```
-
-### Production
-```bash
-yarn start    # Standard production start
-```
-
-### Docker Deployment (Optional)
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN yarn install --production
-COPY . .
-EXPOSE 3000
-CMD ["yarn", "start"]
-```
-
-### Reverse Proxy (Nginx)
-```nginx
-server {
-    listen 80;
-    server_name firmware.yourdomain.com;
-    
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
 
 ## 🛡️ Security Considerations
 
@@ -247,28 +193,6 @@ app.use((req, res, next) => {
     res.setHeader('X-XSS-Protection', '1; mode=block');
     next();
 });
-```
-
-## 🧪 Testing
-
-### Manual Testing
-1. **Upload Test**: Upload a small firmware file
-2. **API Test**: Query firmwares via API
-3. **Download Test**: Download uploaded firmware
-4. **Version Test**: Try uploading duplicate versions (should fail)
-
-### Automated Testing
-```bash
-# Test firmware upload
-curl -X POST http://localhost:3000/api/firmware/upload \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -F "firmware=@test.bin" \
-  -F "deviceType=TEST-DEVICE" \
-  -F "version=1.0.0" \
-  -F "description=Test firmware"
-
-# Test firmware query
-curl http://localhost:3000/api/firmwares?device=TEST-DEVICE
 ```
 
 ## 🤝 Contributing
@@ -293,16 +217,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Common Issues
 
-**Q: "Cannot upload files larger than 100MB"**  
+**Q: "Cannot upload files larger than 100MB"**
 A: Modify the multer configuration in `server.js` to increase the file size limit.
 
-**Q: "JWT token expired"**  
+**Q: "JWT token expired"**
 A: Tokens expire after 24 hours. Re-login to get a new token.
 
-**Q: "Port 3000 already in use"**  
+**Q: "Port 3000 already in use"**
 A: Set `PORT` environment variable or change the default port in `server.js`.
 
-**Q: "Cannot find firmware_data.json"**  
+**Q: "Cannot find firmware_data.json"**
 A: The file is auto-generated on first run. Ensure write permissions in the project directory.
 
 ### Getting Help
@@ -310,18 +234,6 @@ A: The file is auto-generated on first run. Ensure write permissions in the proj
 - Review server logs for error messages
 - Ensure all dependencies are installed correctly
 - Verify file permissions for upload directory
-
-## 🎯 Roadmap
-
-- [ ] User management interface
-- [ ] Firmware rollback functionality
-- [ ] Automatic firmware signing/verification
-- [ ] Email notifications for new releases
-- [ ] Docker container support
-- [ ] Database backend options (PostgreSQL, MongoDB)
-- [ ] Rate limiting and API throttling
-- [ ] Firmware delta updates
-- [ ] Multi-language support
 
 ---
 

@@ -1,22 +1,18 @@
 const multer = require("multer");
-const path = require("path");
-const { v4: uuidv4 } = require("uuid");
 const config = require("../config/config");
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-	destination: (req, file, cb) => {
-		cb(null, config.UPLOAD_DIR);
-	},
-	filename: (req, file, cb) => {
-		const uniqueName = `${Date.now()}-${uuidv4()}${path.extname(file.originalname)}`;
-		cb(null, uniqueName);
-	},
-});
+// Use memory storage since we handle file storage in the storage layer
+const storage = multer.memoryStorage();
 
 const upload = multer({
-	storage,
-	limits: { fileSize: config.MAX_FILE_SIZE },
+    storage,
+    limits: {
+        fileSize: config.MAX_FILE_SIZE
+    },
+    fileFilter: (req, file, cb) => {
+        // Accept all file types for firmware uploads
+        cb(null, true);
+    }
 });
 
 module.exports = upload;

@@ -96,6 +96,7 @@ Get all available firmwares, sorted by upload date (newest first).
     "filename": "1703123456789-uuid.bin",
     "originalName": "esp32_firmware_v2.1.0.bin",
     "size": 1048576,
+    "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
     "uploadedBy": "admin",
     "uploadDate": "2024-12-21T10:30:45.123Z"
   },
@@ -107,6 +108,7 @@ Get all available firmwares, sorted by upload date (newest first).
     "filename": "1703023456789-uuid.bin",
     "originalName": "esp32_firmware_v2.0.0.bin",
     "size": 1024000,
+    "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
     "uploadedBy": "admin",
     "uploadDate": "2024-12-20T15:20:30.456Z"
   }
@@ -140,6 +142,7 @@ Get specific firmware details by ID.
   "filename": "1703123456789-uuid.bin",
   "originalName": "esp32_firmware_v2.1.0.bin",
   "size": 1048576,
+  "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
   "uploadedBy": "admin",
   "uploadDate": "2024-12-21T10:30:45.123Z"
 }
@@ -186,6 +189,7 @@ Content-Type: multipart/form-data
   "filename": "1703223456789-newuuid.bin",
   "originalName": "my_firmware.bin",
   "size": 1200000,
+  "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
   "uploadedBy": "admin",
   "uploadDate": "2024-12-22T08:15:20.789Z"
 }
@@ -251,6 +255,7 @@ curl -o esp32_firmware.bin http://localhost:3000/downloads/1703123456789-uuid.bi
   "filename": "string (internal filename)",
   "originalName": "string (original upload filename)",
   "size": "number (bytes)",
+  "sha1": "SHA1 hash of the file",
   "uploadedBy": "string (username)",
   "uploadDate": "string (ISO 8601 datetime)"
 }
@@ -282,68 +287,6 @@ All error responses follow this format:
 - `403` - Forbidden (token expired)
 - `404` - Not Found (resource doesn't exist)
 - `500` - Internal Server Error
-
----
-
-## Hardware Integration Examples
-
-### Arduino/ESP32 Example
-```cpp
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
-
-void checkForUpdates() {
-  HTTPClient http;
-  http.begin("http://your-server.com/api/firmwares?device=ESP32-DevKit");
-  
-  int httpCode = http.GET();
-  if (httpCode == 200) {
-    String payload = http.getString();
-    
-    DynamicJsonDocument doc(4096);
-    deserializeJson(doc, payload);
-    
-    String latestVersion = doc[0]["version"];
-    String downloadUrl = "http://your-server.com/downloads/" + doc[0]["filename"].as<String>();
-    
-    // Compare with current version and download if needed
-    if (isNewerVersion(latestVersion, CURRENT_VERSION)) {
-      downloadFirmware(downloadUrl);
-    }
-  }
-  http.end();
-}
-```
-
-### Python Example
-```python
-import requests
-
-def get_latest_firmware(device_type):
-    response = requests.get(f"http://localhost:3000/api/firmwares?device={device_type}")
-    if response.status_code == 200:
-        firmwares = response.json()
-        if firmwares:
-            latest = firmwares[0]  # Already sorted by version
-            return latest
-    return None
-
-def download_firmware(firmware_info, save_path):
-    download_url = f"http://localhost:3000/downloads/{firmware_info['filename']}"
-    response = requests.get(download_url)
-    
-    if response.status_code == 200:
-        with open(save_path, 'wb') as f:
-            f.write(response.content)
-        return True
-    return False
-
-# Usage
-latest = get_latest_firmware("ESP32-DevKit")
-if latest:
-    print(f"Latest version: {latest['version']}")
-    download_firmware(latest, "firmware.bin")
-```
 
 ---
 
