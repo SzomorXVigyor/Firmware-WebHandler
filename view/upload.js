@@ -6,7 +6,7 @@
 const { generatePageWrapper } = require("./components");
 
 const renderUploadPage = (req, res) => {
-	const content = `
+    const content = `
     <main class="container-fluid flex-grow-1 mt-4">
         <div class="container">
             <div class="row justify-content-center">
@@ -83,16 +83,16 @@ const renderUploadPage = (req, res) => {
         </div>
     </main>`;
 
-	const html = generatePageWrapper(content, {
-		title: "Firmware Management Server - Upload",
-		activePage: "upload",
-		isUploadPage: true,
-		pageScripts: ["/js/upload.js"],
-	});
+    const html = generatePageWrapper(content, {
+        title: "Firmware Management Server - Upload",
+        activePage: "upload",
+        isUploadPage: true,
+        pageScripts: ["/js/upload.js"],
+    });
 
-	res.send(html);
+    res.send(html);
 };
 
 module.exports = {
-	renderUploadPage,
+    renderUploadPage,
 };

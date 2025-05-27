@@ -81,9 +81,8 @@ const downloadFirmware = async (req, res) => {
         res.send(fileBuffer);
 
         // Increment download count in analytics
-        const totalDownloads = await manager.getAnalytics("totalDownloads") || 0;
+        const totalDownloads = (await manager.getAnalytics("totalDownloads")) || 0;
         manager.setAnalytics("totalDownloads", totalDownloads + 1);
-
     } catch (error) {
         console.error("Error downloading firmware:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -132,7 +131,7 @@ const uploadFirmware = async (req, res) => {
             size: req.file.size,
             sha1: sha1Hash,
             uploadedBy: req.user.username,
-            mimetype: req.file.mimetype
+            mimetype: req.file.mimetype,
         };
 
         const savedFirmware = await manager.addFirmware(firmware, fileBuffer);
@@ -175,7 +174,7 @@ const updateFirmware = async (req, res) => {
         const updatedFirmware = await manager.updateFirmware(req.params.id, {
             version,
             description,
-            updatedBy: req.user.username
+            updatedBy: req.user.username,
         });
 
         if (updatedFirmware) {
@@ -211,7 +210,7 @@ const healthCheck = async (req, res) => {
         console.error("Error performing health check:", error);
         res.status(503).json({
             status: "unhealthy",
-            error: error.message
+            error: error.message,
         });
     }
 };
@@ -242,5 +241,5 @@ module.exports = {
     deleteFirmware,
     updateFirmware,
     getFirmwareStats,
-    healthCheck
+    healthCheck,
 };
