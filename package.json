@@ -1,6 +1,6 @@
 {
 	"name": "firmware-webmanager",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Web service for handle multi device firmware files and indexes.",
 	"main": "index.js",
 	"repository": "https://github.com/SzomorXVigyor/Firmware-WebManager",
@@ -11,11 +11,7 @@
 		"dev": "nodemon --env-file=.env app.js",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
-		"lint:check": "eslint . --max-warnings 0",
-		"precommit": "yarn run lint:check",
-		"migrate:mongo": "node scripts/migrate-to-mongo.js",
-		"migrate:postgres": "node scripts/migrate-to-postgres.js",
-		"setup:postgres": "node scripts/setup-postgres.js"
+		"lint:check": "eslint . --max-warnings 0"
 	},
 	"keywords": [
 		"firmware",
