@@ -171,7 +171,6 @@ class MongoDBStorage extends IFirmwareStorage {
 					uploadedBy: firmware.uploadedBy,
 					mimetype: firmware.mimetype || "application/octet-stream",
 					fileId: fileId,
-					uploadDate: new Date(),
 					createdAt: new Date(),
 				};
 
@@ -228,7 +227,6 @@ class MongoDBStorage extends IFirmwareStorage {
 				uploadedBy: firmware.uploadedBy,
 				mimetype: firmware.mimetype || "application/octet-stream",
 				fileId: fileId,
-				uploadDate: new Date(),
 				createdAt: new Date(),
 			};
 
@@ -378,7 +376,6 @@ class MongoDBStorage extends IFirmwareStorage {
 	 * @throws {Error} If update fails
 	 */
 	async updateFirmware(id, updates) {
-		console.log("Updating firmware with ID:", id, "Updates:", updates);
 		try {
 			const updateDoc = {
 				...updates,
@@ -390,7 +387,6 @@ class MongoDBStorage extends IFirmwareStorage {
 			delete updateDoc.fileId;
 			delete updateDoc.sha1;
 			delete updateDoc.size;
-			delete updateDoc.uploadDate;
 			delete updateDoc.createdAt;
 
 			const result = await this.firmwaresCollection.findOneAndUpdate({ id: id }, { $set: updateDoc }, { returnDocument: "after" });
@@ -552,7 +548,7 @@ class MongoDBStorage extends IFirmwareStorage {
 				const regexQuery = new RegExp(query, "i");
 				return await this.firmwaresCollection
 					.find({
-						$or: [{ deviceType: regexQuery }, { version: regexQuery }, { description: regexQuery }, { originalName: regexQuery }],
+						$or: [{ deviceType: regexQuery }, { version: regexQuery }, { description: regexQuery }],
 					})
 					.sort({ createdAt: -1 })
 					.toArray();

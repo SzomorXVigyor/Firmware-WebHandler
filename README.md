@@ -7,7 +7,7 @@
 <img alt="Latest release" src="https://img.shields.io/github/v/release/SzomorXVigyor/Firmware-WebManager">
 <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow">
 
-A comprehensive web-based firmware management system with REST API for IoT devices, microcontrollers, and embedded systems. Easily manage, version, and distribute firmware updates across multiple hardware platforms. Support multiple simple or high availability, scalable datastore technologies.
+A comprehensive web-based firmware management system with REST API for IoT devices, microcontrollers, and embedded systems. Easily manage, version, and distribute firmware updates across multiple hardware platforms. Support multiple simple or high availability, scalable datastore technologies. Designed for IoT and embedded devices OTA upgrades, but it can also function as a simple release manager.
 </p>
 
 ## ✨ Features
@@ -62,6 +62,10 @@ cp .env.example .env
 ```
 
 ### Choose Storage Backend
+
+> [!NOTE]
+> Use **.env.example** as a template.
+
 ```bash
 # FileSystem (Default)
 export STORAGE_TYPE=filesystem
@@ -83,7 +87,7 @@ yarn start
 ### Access
 - **Web Interface**: http://localhost:3000
 - **API**: http://localhost:3000/api
-- **Credentials**: `admin` / `admin123`
+- **Default Credentials**: `admin` / `admin123`
 
 ## 📖 API Reference
 
@@ -154,25 +158,28 @@ GET /api/health
 curl "http://your-server.com/api/firmwares?device=ESP32-DevKit"
 ```
 
-#### Download Firmware
-```bash
-curl -O "http://your-server.com/downloads/firmware-filename.bin"
-```
-
 ### **Response Example**
 ```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "deviceType": "ESP32-DevKit",
-  "version": "2.1.0",
-  "description": "WiFi security improvements and bug fixes",
-  "filename": "1703123456789-uuid.bin",
-  "originalName": "esp32_firmware_v2.1.0.bin",
-  "size": 1048576,
-  "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
-  "uploadedBy": "admin",
-  "uploadDate": "2024-12-21T10:30:45.123Z"
-}
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "deviceType": "ESP32-DevKit",
+    "version": "2.2.0",
+    "description": "Performance improvements and new sensor support",
+    "originalName": "my_firmware.bin",
+    "size": 1200000,
+    "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
+    "uploadedBy": "admin",
+    "mimetype": "application/octet-stream",
+    "fileId": "1748277113189-68021285-8457-471e-aea7-c6720dad13cd.bin",
+    "createdAt":"2025-05-27T14:13:38.034Z"
+  }
+]
+```
+
+#### Download Firmware
+```bash
+curl -O "http://your-server.com/550e8400-e29b-41d4-a716-446655440002/download"
 ```
 
 📚 **[Complete API Documentation](API_Documentation.md)**
@@ -219,27 +226,11 @@ app.use((req, res, next) => {
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
-
-### Common Issues
-
-**Q: "Cannot upload files larger than 100MB"**
-A: Modify the multer configuration in `server.js` to increase the file size limit.
-
-**Q: "JWT token expired"**
-A: Tokens expire after 24 hours. Re-login to get a new token.
-
-**Q: "Port 3000 already in use"**
-A: Set `PORT` environment variable or change the default port in `server.js`.
-
-**Q: "Cannot find firmware_data.json"**
-A: The file is auto-generated on first run. Ensure write permissions in the project directory.
-
 ### Getting Help
 - Check the [API Documentation](API_Documentation.md)
 - Review server logs for error messages
 - Ensure all dependencies are installed correctly
-- Verify file permissions for upload directory
+- Verify file permissions for upload directory or database access
 
 ---
 

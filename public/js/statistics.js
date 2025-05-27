@@ -36,11 +36,9 @@ async function loadStatistics() {
 			displayRecentActivity(firmwares);
 		}
 
-        if (stats) {
-            displayOverviewStats(stats);
-        }
-
-
+		if (stats) {
+			displayOverviewStats(stats);
+		}
 	} catch (error) {
 		console.error("Error loading detailed statistics:", error);
 	}
@@ -99,7 +97,7 @@ function createUploadTimelineChart(firmwares) {
 	// Group uploads by month
 	const uploadsByMonth = {};
 	firmwares.forEach((firmware) => {
-		const date = new Date(firmware.uploadDate);
+		const date = new Date(firmware.createdAt);
 		const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 		uploadsByMonth[monthKey] = (uploadsByMonth[monthKey] || 0) + 1;
 	});

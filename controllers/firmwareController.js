@@ -164,6 +164,14 @@ const updateFirmware = async (req, res) => {
         const manager = await initializeFirmwareManager();
         const { version, description } = req.body;
 
+        if (!version || !description) {
+            return res.status(400).json({ error: "Version, and description are required" });
+        }
+
+        if (!semver.valid(version)) {
+            return res.status(400).json({ error: "Invalid version format. Must follow semantic versioning (e.g., 1.0.0)" });
+        }
+
         const updatedFirmware = await manager.updateFirmware(req.params.id, {
             version,
             description,
