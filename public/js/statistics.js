@@ -3,7 +3,6 @@ let uploadTimelineChart = null;
 
 document.addEventListener("DOMContentLoaded", () => {
 	loadStatistics();
-	loadDetailedStats();
 	setupRefreshInterval();
 });
 
@@ -12,44 +11,36 @@ function setupRefreshInterval() {
 	setInterval(() => {
 		if (document.visibilityState === "visible") {
 			loadStatistics();
-			loadDetailedStats();
 		}
 	}, 2 * 60 * 1000);
 }
 
-async function loadStatistics() {
-	try {
-		const response = await fetch("/api/firmwares/stats");
-		const stats = await response.json();
-
-		if (response.ok) {
-			displayOverviewStats(stats);
-		}
-	} catch (error) {
-		console.error("Error loading statistics:", error);
-	}
-}
-
 function displayOverviewStats(stats) {
-	document.getElementById("totalFirmwares").textContent = stats.totalFirmwares || 0;
-	document.getElementById("deviceTypes").textContent = stats.deviceTypes || 0;
+	document.getElementById("totalFirmwares").textContent = stats.count || 0;
+	document.getElementById("deviceTypes").textContent = stats.types.length || 0;
 	document.getElementById("totalSize").textContent = formatFileSize(stats.totalSize || 0);
 	document.getElementById("totalDownloads").textContent = stats.totalDownloads || 0;
 }
 
-async function loadDetailedStats() {
+async function loadStatistics() {
 	try {
-		const [firmwaresResponse, deviceStatsResponse] = await Promise.all([fetch("/api/firmwares"), fetch("/api/firmwares/device-stats")]);
+		const [firmwaresResponse, statsResponse] = await Promise.all([fetch("/api/firmwares"), fetch("/api/firmwares/stats")]);
 
-		const firmwares = await firmwaresResponse.json();
-		const deviceStats = deviceStatsResponse.ok ? await deviceStatsResponse.json() : null;
+		const firmwares = firmwaresResponse.ok ? await firmwaresResponse.json() : null;
+		const stats = statsResponse.ok ? await statsResponse.json() : null;
 
-		if (firmwaresResponse.ok) {
+		if (firmwares) {
 			createDeviceTypeChart(firmwares);
 			createUploadTimelineChart(firmwares);
-			displayDeviceSummaryTable(deviceStats || firmwares);
+			displayDeviceSummaryTable(firmwares);
 			displayRecentActivity(firmwares);
 		}
+
+        if (stats) {
+            displayOverviewStats(stats);
+        }
+
+
 	} catch (error) {
 		console.error("Error loading detailed statistics:", error);
 	}

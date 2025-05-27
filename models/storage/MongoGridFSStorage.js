@@ -12,25 +12,31 @@ const IFirmwareStorage = require("../interfaces/IFirmwareStorage");
  * and regular collections for metadata and users
  */
 class MongoDBStorage extends IFirmwareStorage {
-	constructor() {
+	constructor(config) {
 		super();
 		this.client = null;
 		this.db = null;
 		this.gridFSBucket = null;
 		this.firmwaresCollection = null;
 		this.usersCollection = null;
-		this.configCollection = null;
+		this.analyticsCollection = null;
 		this.supportsTransactions = false;
 
 		// Configuration from environment variables
-		this.mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017";
-		this.dbName = process.env.MONGODB_DB || "firmware_manager";
-		this.bucketName = process.env.GRIDFS_BUCKET || "firmwares";
-		this.chunkSize = parseInt(process.env.GRIDFS_CHUNK_SIZE || "1048576", 10);
+		this.mongoUri = config.MONGODB_URI || "mongodb://localhost:27017";
+		this.dbName = config.MONGODB_DB || "firmware_manager";
+		this.bucketName = config.GRIDFS_BUCKET || "firmwares";
+		this.chunkSize = parseInt(config.GRIDFS_CHUNK_SIZE || "1048576", 10);
 	}
 
 	/**
 	 * Initialize MongoDB connection and collections
+	 * This method connects to the MongoDB server,
+	 * checks for transaction support,
+	 * initializes the GridFS bucket for file storage,
+	 * and sets up the necessary collections.
+	 * @returns {Promise<void>}
+	 * @throws {Error} If initialization fails
 	 */
 	async initialize() {
 		try {
@@ -60,7 +66,7 @@ class MongoDBStorage extends IFirmwareStorage {
 			// Initialize collections
 			this.firmwaresCollection = this.db.collection("firmwares");
 			this.usersCollection = this.db.collection("users");
-			this.configCollection = this.db.collection("config");
+			this.analyticsCollection = this.db.collection("analytics");
 
 			// Create indexes for better performance
 			await this.createIndexes();
@@ -74,6 +80,9 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Create database indexes for optimal performance
+	 * This method creates indexes on the firmwares, users, and analytics collections
+	 * to improve query performance and ensure uniqueness where necessary.
+	 * @returns {Promise<void>}
 	 */
 	async createIndexes() {
 		try {
@@ -91,8 +100,8 @@ class MongoDBStorage extends IFirmwareStorage {
 			// User collection indexes
 			await this.usersCollection.createIndex({ username: 1 }, { unique: true });
 
-			// Config collection indexes
-			await this.configCollection.createIndex({ key: 1 }, { unique: true });
+			// Analytics collection indexes
+			await this.analyticsCollection.createIndex({ key: 1 }, { unique: true });
 		} catch (error) {
 			console.warn("Warning: Could not create some indexes:", error.message);
 		}
@@ -100,6 +109,12 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Store firmware file using GridFS and save metadata
+	 * This method handles both replica set/mongos (with transactions)
+	 * and standalone MongoDB (without transactions).
+	 * @param {Object} firmware - Firmware metadata
+	 * @param {Buffer} fileBuffer - Firmware file buffer
+	 * @return {Promise<Object>} Saved firmware object with generated ID
+	 * @throws {Error} If adding firmware fails
 	 */
 	async addFirmware(firmware, fileBuffer) {
 		if (this.supportsTransactions) {
@@ -111,6 +126,12 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Add firmware with transaction support (replica set/mongos)
+	 * This method uses a transaction to ensure that both the file upload
+	 * and metadata save are atomic.
+	 * @param {Object} firmware - Firmware metadata
+	 * @param {Buffer} fileBuffer - Firmware file buffer
+	 * @return {Promise<Object>} Saved firmware object with generated ID
+	 * @throws {Error} If adding firmware fails
 	 */
 	async addFirmwareWithTransaction(firmware, fileBuffer) {
 		const session = this.client.startSession();
@@ -170,9 +191,15 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Add firmware without transaction support (standalone MongoDB)
+	 * This method uploads the file to GridFS and saves the metadata
+	 * without using transactions.
+	 * @param {Object} firmware - Firmware metadata
+	 * @param {Buffer} fileBuffer - Firmware file buffer
+	 * @return {Promise<Object>} Saved firmware object with generated ID
+	 * @throws {Error} If adding firmware fails
 	 */
 	async addFirmwareWithoutTransaction(firmware, fileBuffer) {
-        let fileId = "";
+		let fileId = "";
 		try {
 			// Generate unique IDs
 			const firmwareId = uuidv4();
@@ -180,11 +207,6 @@ class MongoDBStorage extends IFirmwareStorage {
 
 			// Upload file to GridFS first
 			const uploadStream = this.gridFSBucket.openUploadStream(fileId, {
-				metadata: {
-					firmwareId: firmwareId,
-					originalName: firmware.originalName,
-					mimetype: firmware.mimetype || "application/octet-stream",
-				},
 				chunkSizeBytes: this.chunkSize,
 			});
 
@@ -233,6 +255,10 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Retrieve firmware file from GridFS
+	 * This method fetches the file from GridFS using its fileId.
+	 * @param {string} fileId - File identifier
+	 * @return {Promise<Buffer>} File buffer
+	 * @throws {Error} If file retrieval fails or file not found
 	 */
 	async getFirmwareFile(fileId) {
 		try {
@@ -265,6 +291,11 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Get firmwares filtered by device type
+	 * This method retrieves all firmwares for a specific device type,
+	 * sorted by creation date in descending order.
+	 * @param {string} deviceType - Device type to filter by
+	 * @return {Promise<Array>} Array of firmware objects for the specified device type
+	 * @throws {Error} If retrieval fails
 	 */
 	async getFirmwaresByDevice(deviceType) {
 		try {
@@ -277,6 +308,10 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Get all firmwares
+	 * This method retrieves all firmwares in the database,
+	 * sorted by creation date in descending order.
+	 * @return {Promise<Array>} Array of all firmware objects
+	 * @throws {Error} If retrieval fails
 	 */
 	async getAllFirmwares() {
 		try {
@@ -289,6 +324,9 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Get all unique device types
+	 * This method retrieves all distinct device types from the firmware metadata.
+	 * @return {Promise<Array>} Array of unique device type strings
+	 * @throws {Error} If retrieval fails
 	 */
 	async getDeviceTypes() {
 		try {
@@ -301,6 +339,10 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Find user by username
+	 * This method retrieves a user document by their username.
+	 * @param {string} username - Username to search for
+	 * @return {Promise<Object|null>} User object or null if not found
+	 * @throws {Error} If retrieval fails
 	 */
 	async findUser(username) {
 		try {
@@ -313,6 +355,10 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Get firmware by ID
+	 * This method retrieves a firmware document by its unique ID.
+	 * @param {string} id - Firmware ID
+	 * @return {Promise<Object|null>} Firmware object or null if not found
+	 * @throws {Error} If retrieval fails
 	 */
 	async getFirmwareById(id) {
 		try {
@@ -325,9 +371,14 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Update firmware metadata
+	 * This method updates the metadata of a firmware document by its ID.
+	 * @param {string} id - Firmware ID
+	 * @param {Object} updates - Updates to apply
+	 * @return {Promise<Object|null>} Updated firmware object or null if not found
+	 * @throws {Error} If update fails
 	 */
 	async updateFirmware(id, updates) {
-        console.log("Updating firmware with ID:", id, "Updates:", updates);
+		console.log("Updating firmware with ID:", id, "Updates:", updates);
 		try {
 			const updateDoc = {
 				...updates,
@@ -353,6 +404,11 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Delete firmware and its file
+	 * This method deletes a firmware document by its ID,
+	 * and also removes the associated file from GridFS.
+	 * @param {string} id - Firmware ID
+	 * @return {Promise<boolean>} Success status
+	 * @throws {Error} If deletion fails
 	 */
 	async deleteFirmware(id) {
 		if (this.supportsTransactions) {
@@ -364,6 +420,11 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Delete firmware with transaction support
+	 * This method uses a transaction to ensure that both the firmware metadata
+	 * and the associated file in GridFS are deleted atomically.
+	 * @param {string} id - Firmware ID
+	 * @return {Promise<boolean>} Success status
+	 * @throws {Error} If deletion fails
 	 */
 	async deleteFirmwareWithTransaction(id) {
 		const session = this.client.startSession();
@@ -403,6 +464,11 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Delete firmware without transaction support
+	 * This method deletes the firmware metadata and the associated file
+	 * from GridFS without using transactions.
+	 * @param {string} id - Firmware ID
+	 * @return {Promise<boolean>} Success status
+	 * @throws {Error} If deletion fails
 	 */
 	async deleteFirmwareWithoutTransaction(id) {
 		try {
@@ -437,6 +503,12 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Add or update user
+	 * This method saves a user document in the users collection.
+	 * If the user already exists, it updates the document;
+	 * otherwise, it creates a new one.
+	 * @param {Object} user - User object containing username and other details
+	 * @return {Promise<Object>} Saved user object with generated ID
+	 * @throws {Error} If saving user fails
 	 */
 	async saveUser(user) {
 		try {
@@ -457,6 +529,11 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Search firmwares using text search
+	 * This method performs a text search on the firmware metadata
+	 * and falls back to regex search if no results are found.
+	 * @param {string} query - Search query string
+	 * @return {Promise<Array>} Array of matching firmware objects
+	 * @throws {Error} If search fails
 	 */
 	async searchFirmwares(query) {
 		try {
@@ -490,33 +567,43 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Get firmware statistics
+	 * This method aggregates firmware data to provide statistics
+	 * such as summerized count, type, total size and all analytics key-value.
+	 * for each device type.
+	 * @return {Promise<Array>} Array of objects containing firmware statistics
+	 * @throws {Error} If aggregation fails
 	 */
 	async getFirmwareStats() {
 		try {
 			const pipeline = [
 				{
 					$group: {
-						_id: "$deviceType",
+						_id: null,
 						count: { $sum: 1 },
 						totalSize: { $sum: "$size" },
-						latestUpload: { $max: "$uploadDate" },
+						types: { $addToSet: "$deviceType" },
 					},
 				},
 				{
 					$project: {
-						deviceType: "$_id",
+						_id: 0,
 						count: 1,
 						totalSize: 1,
-						latestUpload: 1,
-						_id: 0,
+						types: 1,
 					},
-				},
-				{
-					$sort: { count: -1 },
 				},
 			];
 
-			return await this.firmwaresCollection.aggregate(pipeline).toArray();
+			const [stats = {}] = await this.firmwaresCollection.aggregate(pipeline).toArray();
+
+			// Merge with analytics data if available
+			try {
+				const analytics = await this.getAllAnalytics();
+				Object.assign(stats, analytics);
+			} catch (err) {
+				console.warn("Analytics data not available:", err.message);
+			}
+			return stats;
 		} catch (error) {
 			console.error("Error getting firmware stats:", error);
 			throw error;
@@ -524,32 +611,67 @@ class MongoDBStorage extends IFirmwareStorage {
 	}
 
 	/**
-	 * Get configuration value
+	 * Get all analytics keys value
+	 * This method retrieves all analytics keys and their values
+	 * @returns {Promise<Object>} Object with all analytics keys and their values
+	 * @throws {Error} If there is an error reading the analytics file
 	 */
-	async getConfig(key) {
+	async getAllAnalytics() {
 		try {
-			const config = await this.configCollection.findOne({ key });
-			return config ? config.value : null;
+			const analytics = await this.analyticsCollection.find({}).toArray();
+			const result = {};
+			analytics.forEach((item) => {
+				result[item.key] = item.value;
+			});
+			return result;
 		} catch (error) {
-			console.error("Error getting config:", error);
+			console.error("Error getting all analytics:", error);
 			throw error;
 		}
 	}
 
 	/**
-	 * Set configuration value
+	 * Get analytics value
+	 * This method retrieves a specific analytics value
+	 * by its key from the analytics collection.
+	 * @param {string} key - Analytics key
+	 * @return {Promise<any>} Analytics value or null if not found
+	 * @throws {Error} If retrieval fails
 	 */
-	async setConfig(key, value) {
+	async getAnalytics(key) {
 		try {
-			await this.configCollection.findOneAndReplace({ key }, { key, value, updatedAt: new Date() }, { upsert: true });
+			const analytics = await this.analyticsCollection.findOne({ key });
+			return analytics ? analytics.value : null;
 		} catch (error) {
-			console.error("Error setting config:", error);
+			console.error("Error getting analytics:", error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Set analytics value
+	 * This method sets or updates an analytics value
+	 * by its key in the analytics collection.
+	 * @param {string} key - Analytics key
+	 * @param {any} value - Analytics value to set
+	 * @return {Promise<void>} Resolves when the operation is complete
+	 * @throws {Error} If setting analytics fails
+	 */
+	async setAnalytics(key, value) {
+		try {
+			await this.analyticsCollection.findOneAndReplace({ key }, { key, value, updatedAt: new Date() }, { upsert: true });
+		} catch (error) {
+			console.error("Error setting analytics:", error);
 			throw error;
 		}
 	}
 
 	/**
 	 * Close MongoDB connection
+	 * This method closes the MongoDB client connection
+	 * and cleans up resources.
+	 * @return {Promise<void>} Resolves when the connection is closed
+	 * @throws {Error} If closing connection fails
 	 */
 	async close() {
 		try {
@@ -565,6 +687,10 @@ class MongoDBStorage extends IFirmwareStorage {
 
 	/**
 	 * Helper method to extract file extension
+	 * This method extracts the file extension from a filename.
+	 * If no extension is found, it returns "bin" as a default.
+	 * @param {string} filename - Filename to extract extension from
+	 * @return {string} File extension or "bin" if none found
 	 */
 	getFileExtension(filename) {
 		if (!filename) return "bin";

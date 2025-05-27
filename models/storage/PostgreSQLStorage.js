@@ -7,7 +7,7 @@ const IFirmwareStorage = require("../interfaces/IFirmwareStorage");
  * Stores firmware metadata in PostgreSQL tables and files as bytea or file references
  */
 class PostgreSQLStorage extends IFirmwareStorage {
-	constructor() {
+	constructor(config) {
 		super();
 	}
 

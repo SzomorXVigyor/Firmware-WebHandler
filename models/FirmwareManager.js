@@ -91,25 +91,30 @@ class FirmwareManager {
         await this.ensureInitialized();
         return await this.storage.saveUser(user);
     }
+    
+    async searchFirmwares(query) {
+        await this.ensureInitialized();
+        return await this.storage.searchFirmwares(query);
+    }
 
     async getFirmwareStats() {
         await this.ensureInitialized();
         return await this.storage.getFirmwareStats();
     }
 
-    async searchFirmwares(query) {
+    async getAllAnalytics() {
         await this.ensureInitialized();
-        return await this.storage.searchFirmwares(query);
+        return await this.storage.getAllAnalytics();
     }
 
-    async getConfig(key) {
+    async getAnalytics(key) {
         await this.ensureInitialized();
-        return await this.storage.getConfig(key);
+        return await this.storage.getAnalytics(key);
     }
 
-    async setConfig(key, value) {
+    async setAnalytics(key, value) {
         await this.ensureInitialized();
-        return await this.storage.setConfig(key, value);
+        return await this.storage.setAnalytics(key, value);
     }
 
     async close() {

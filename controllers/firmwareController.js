@@ -79,6 +79,11 @@ const downloadFirmware = async (req, res) => {
         res.setHeader("Content-Length", fileBuffer.length);
 
         res.send(fileBuffer);
+
+        // Increment download count in analytics
+        const totalDownloads = await manager.getAnalytics("totalDownloads") || 0;
+        manager.setAnalytics("totalDownloads", totalDownloads + 1);
+
     } catch (error) {
         console.error("Error downloading firmware:", error);
         res.status(500).json({ error: "Internal server error" });
