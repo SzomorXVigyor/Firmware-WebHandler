@@ -4,7 +4,7 @@
  */
 
 const generateHtmlHead = (title = "Firmware Management Server", includeChartJs = false) => {
-	return `
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,5 +20,5 @@ const generateHtmlHead = (title = "Firmware Management Server", includeChartJs =
 };
 
 module.exports = {
-	generateHtmlHead,
+    generateHtmlHead,
 };

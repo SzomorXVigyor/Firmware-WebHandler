@@ -4,9 +4,9 @@
  */
 
 const generateFooter = (options = {}) => {
-	const { version = process.env.npm_package_version || "Unknown Version" } = options;
+    const { version = process.env.npm_package_version || "Unknown Version" } = options;
 
-	return `
+    return `
     <!-- Footer -->
     <footer class="bg-dark text-light py-4 mt-auto">
         <div class="container">
@@ -32,5 +32,5 @@ const generateFooter = (options = {}) => {
 };
 
 module.exports = {
-	generateFooter,
+    generateFooter,
 };

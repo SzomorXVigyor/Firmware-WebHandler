@@ -16,20 +16,20 @@ const { generateScripts } = require("./scripts");
  * @returns {string} Complete HTML page
  */
 const generatePageWrapper = (content, options = {}) => {
-	const {
-		title = "Firmware Management Server",
-		activePage = "",
-		isUploadPage = false,
-		pageScripts = [],
-		includeChartJs = false,
-		includeConfirmModal = false,
-	} = options;
+    const {
+        title = "Firmware Management Server",
+        activePage = "",
+        isUploadPage = false,
+        pageScripts = [],
+        includeChartJs = false,
+        includeConfirmModal = false,
+    } = options;
 
-	const navigation = isUploadPage ? generateUploadNavigation(activePage) : generateNavigation(activePage);
+    const navigation = isUploadPage ? generateUploadNavigation(activePage) : generateNavigation(activePage);
 
-	const modals = [generateLoginModal(), ...(includeConfirmModal ? [generateConfirmModal()] : [])].join("\n    ");
+    const modals = [generateLoginModal(), ...(includeConfirmModal ? [generateConfirmModal()] : [])].join("\n    ");
 
-	return `${generateHtmlHead(title, includeChartJs)}
+    return `${generateHtmlHead(title, includeChartJs)}
     ${navigation}
 
     ${content}
@@ -40,15 +40,15 @@ const generatePageWrapper = (content, options = {}) => {
 };
 
 module.exports = {
-	// Individual components
-	generateHtmlHead,
-	generateNavigation,
-	generateUploadNavigation,
-	generateLoginModal,
-	generateConfirmModal,
-	generateFooter,
-	generateScripts,
+    // Individual components
+    generateHtmlHead,
+    generateNavigation,
+    generateUploadNavigation,
+    generateLoginModal,
+    generateConfirmModal,
+    generateFooter,
+    generateScripts,
 
-	// Main wrapper
-	generatePageWrapper,
+    // Main wrapper
+    generatePageWrapper,
 };

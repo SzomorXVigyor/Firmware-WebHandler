@@ -4,73 +4,73 @@
  */
 
 const generateNavigation = (activePage = "") => {
-	const navItems = [
-		{ href: "/", icon: "fas fa-home", text: "Home", key: "home" },
-		{ href: "/firmwares", icon: "fas fa-microchip", text: "Firmwares", key: "firmwares" },
-		{ href: "/statistics", icon: "fas fa-chart-bar", text: "Statistics", key: "statistics" },
-		{
-			href: "/upload",
-			icon: "fas fa-upload",
-			text: "Upload",
-			key: "upload",
-			id: "uploadNavItem",
-			style: "display: none;", // Hidden by default, shown via client-side auth
-		},
-	];
+    const navItems = [
+        { href: "/", icon: "fas fa-home", text: "Home", key: "home" },
+        { href: "/firmwares", icon: "fas fa-microchip", text: "Firmwares", key: "firmwares" },
+        { href: "/statistics", icon: "fas fa-chart-bar", text: "Statistics", key: "statistics" },
+        {
+            href: "/upload",
+            icon: "fas fa-upload",
+            text: "Upload",
+            key: "upload",
+            id: "uploadNavItem",
+            style: "display: none;", // Hidden by default, shown via client-side auth
+        },
+    ];
 
-	const navItemsHtml = navItems
-		.map((item) => {
-			const activeClass = item.key === activePage ? "active" : "";
-			const itemId = item.id ? `id="${item.id}"` : "";
-			const itemStyle = item.style ? `style="${item.style}"` : "";
+    const navItemsHtml = navItems
+        .map((item) => {
+            const activeClass = item.key === activePage ? "active" : "";
+            const itemId = item.id ? `id="${item.id}"` : "";
+            const itemStyle = item.style ? `style="${item.style}"` : "";
 
-			return `
+            return `
                     <li class="nav-item" ${itemId} ${itemStyle}>
                         <a class="nav-link ${activeClass}" href="${item.href}">
                             <i class="${item.icon} me-1"></i>${item.text}
                         </a>
                     </li>`;
-		})
-		.join("");
+        })
+        .join("");
 
-	return generateNavBase(navItemsHtml);
+    return generateNavBase(navItemsHtml);
 };
 
 const generateUploadNavigation = (activePage = "") => {
-	// Same navigation structure, client-side auth will handle visibility
-	const navItems = [
-		{ href: "/", icon: "fas fa-home", text: "Home", key: "home" },
-		{ href: "/firmwares", icon: "fas fa-microchip", text: "Firmwares", key: "firmwares" },
-		{ href: "/statistics", icon: "fas fa-chart-bar", text: "Statistics", key: "statistics" },
-		{
-			href: "/upload",
-			icon: "fas fa-upload",
-			text: "Upload",
-			key: "upload",
-			id: "uploadNavItem",
-		},
-	];
+    // Same navigation structure, client-side auth will handle visibility
+    const navItems = [
+        { href: "/", icon: "fas fa-home", text: "Home", key: "home" },
+        { href: "/firmwares", icon: "fas fa-microchip", text: "Firmwares", key: "firmwares" },
+        { href: "/statistics", icon: "fas fa-chart-bar", text: "Statistics", key: "statistics" },
+        {
+            href: "/upload",
+            icon: "fas fa-upload",
+            text: "Upload",
+            key: "upload",
+            id: "uploadNavItem",
+        },
+    ];
 
-	const navItemsHtml = navItems
-		.map((item) => {
-			const activeClass = item.key === activePage ? "active" : "";
-			const itemId = item.id ? `id="${item.id}"` : "";
+    const navItemsHtml = navItems
+        .map((item) => {
+            const activeClass = item.key === activePage ? "active" : "";
+            const itemId = item.id ? `id="${item.id}"` : "";
 
-			return `
+            return `
                     <li class="nav-item" ${itemId}>
                         <a class="nav-link ${activeClass}" href="${item.href}">
                             <i class="${item.icon} me-1"></i>${item.text}
                         </a>
                     </li>`;
-		})
-		.join("");
+        })
+        .join("");
 
-	return generateNavBase(navItemsHtml);
+    return generateNavBase(navItemsHtml);
 };
 
 const generateNavBase = (navItemsHtml) => {
-	// Always generate both login and logout buttons, let client-side handle visibility
-	return `
+    // Always generate both login and logout buttons, let client-side handle visibility
+    return `
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
@@ -101,6 +101,6 @@ const generateNavBase = (navItemsHtml) => {
 };
 
 module.exports = {
-	generateNavigation,
-	generateUploadNavigation,
+    generateNavigation,
+    generateUploadNavigation,
 };
