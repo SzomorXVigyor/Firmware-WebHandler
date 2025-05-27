@@ -579,6 +579,11 @@ function clearAllFilters() {
     onFilterChange();
 }
 
+function clearSearch() {
+    document.getElementById("globalSearch").value = "";
+    onFilterChange();
+}
+
 function checkDefaultFilterState() {
     if (JSON.stringify(filterState) === JSON.stringify(defaultFilterState)) {
         return true;
@@ -671,11 +676,15 @@ function updateActiveFiltersDisplay() {
         activeFilterTags.innerHTML = filters
             .map(
                 (filter) => `
-			<span class="badge bg-primary me-1 mb-1">
-				${filter.label}
-				<button type="button" class="btn-close btn-close-white ms-1" style="font-size: 0.7em;" onclick="removeFilter('${filter.value}')" aria-label="Remove filter"></button>
-			</span>
-		`,
+                    <span class="badge bg-primary me-1 mb-1 p-2" style="display: inline-flex; align-items: center; gap: 0.25em;">
+                        ${filter.label}
+                        <button type="button"
+                                class="btn-close btn-close-white p-0 m-0"
+                                style="line-height: 1;"
+                                onclick="removeFilter('${filter.value}')"
+                                aria-label="Remove filter"></button>
+                    </span>
+                `,
             )
             .join("");
         activeFiltersDiv.style.display = "block";

@@ -98,7 +98,7 @@ const renderFirmwaresPage = (req, res) => {
                             <!-- Active Filters Display -->
                             <div id="activeFilters" class="mt-3" style="display: none;">
                                 <div class="d-flex align-items-center flex-wrap">
-                                    <span class="badge bg-secondary me-2 mb-1">Active Filters:</span>
+                                    <span class="badge bg-secondary me-1 mb-1 p-2">Active Filters:</span>
                                     <div id="activeFilterTags" class="d-flex flex-wrap gap-1"></div>
                                 </div>
                             </div>
