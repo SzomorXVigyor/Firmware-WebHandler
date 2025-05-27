@@ -189,10 +189,10 @@ function createFirmwareRow(firmware) {
                 </div>
             </td>
             <td>${formatFileSize(firmware.size)}</td>
-            <td>${formatDate(firmware.uploadDate)}</td>
+            <td>${formatDate(firmware.createdAt)}</td>
             <td>
                 <code class="sha1-hash" title="Click to copy" onclick="copyToClipboard('${firmware.sha1}', event)">
-                    ${firmware.sha1.substring(0, 8)}...
+                    ${firmware.sha1.substring(0, 14)}...
                 </code>
             </td>
             <td>
@@ -224,16 +224,13 @@ function createFirmwareCard(firmware) {
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <span class="badge ${getVersionBadgeClass(firmware.version)} version-badge">${firmware.version}</span>
-                        <small class="text-muted">${formatDate(firmware.uploadDate)}</small>
+                        <small class="text-muted">${formatDate(firmware.createdAt)}</small>
                     </div>
                     <p class="card-text text-truncate">${firmware.description}</p>
                     <div class="mb-2">
-                        <small class="text-muted d-block">
+                        <small class="text-muted text-truncate d-block">
                             <i class="fas fa-fingerprint me-1"></i>
-                            SHA1: <code class="sha1-hash" title="Click to copy" onclick="copyToClipboard('${firmware.sha1}', event)">${firmware.sha1.substring(
-		0,
-		8,
-	)}...</code>
+                            SHA1: <code class="sha1-hash" title="Click to copy" onclick="copyToClipboard('${firmware.sha1}', event)">${firmware.sha1}</code>
                         </small>
                     </div>
                     <div class="mt-auto">
@@ -314,7 +311,7 @@ function showFirmwareModal(firmware) {
                     <tr><td><strong>Device Type:</strong></td><td>${firmware.deviceType}</td></tr>
                     <tr><td><strong>Version:</strong></td><td><span class="badge ${getVersionBadgeClass(firmware.version)}">${firmware.version}</span></td></tr>
                     <tr><td><strong>File Size:</strong></td><td>${formatFileSize(firmware.size)}</td></tr>
-                    <tr><td><strong>Upload Date:</strong></td><td>${formatDate(firmware.uploadDate)}</td></tr>
+                    <tr><td><strong>Upload Date:</strong></td><td>${formatDate(firmware.createdAt)}</td></tr>
                     <tr><td><strong>Original Name:</strong></td><td>${firmware.originalName}</td></tr>
                 </table>
             </div>
