@@ -71,7 +71,7 @@ async function loadFirmwares() {
 	return AuthUpdateNetworkManager.register(operation, "loadFirmwares");
 }
 
-function displayFirmwares(firmwares) {
+function displayFirmwares(firmwares, highlightFirmwareId = null) {
 	const container = document.getElementById("firmwaresList");
 
 	if (firmwares.length === 0) {
@@ -99,82 +99,126 @@ function displayFirmwares(firmwares) {
 	});
 
 	if (currentView === "list") {
-		displayFirmwaresListView(grouped);
+		displayFirmwaresListView(grouped, highlightFirmwareId);
 	} else {
-		displayFirmwaresGridView(grouped);
+		displayFirmwaresGridView(grouped, highlightFirmwareId);
 	}
 }
 
-function displayFirmwaresGridView(grouped) {
+function displayFirmwaresGridView(grouped, expandDeviceType = null) {
 	const container = document.getElementById("firmwaresList");
 
 	container.innerHTML = Object.keys(grouped)
 		.sort()
-		.map((deviceType) => {
+		.map((deviceType, index) => {
+			const collapseId = `collapseGrid${index}`;
 			const deviceFirmwares = grouped[deviceType];
+			const isExpanded = deviceType === document.getElementById("deviceFilter").value ? "show" : "";
+
 			return `
                 <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+                         role="button"
+                         data-bs-toggle="collapse"
+                         data-bs-target="#${collapseId}"
+                         aria-expanded="${isExpanded ? "true" : "false"}"
+                         aria-controls="${collapseId}">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-chevron-right me-2 collapse-toggle-icon transition" data-target="${collapseId}" style="transform: rotate(${
+				isExpanded ? 90 : 0
+			}deg); transition: transform 0.3s;"></i>
                             <h5 class="mb-0">
                                 <i class="fas fa-microchip me-2"></i>
                                 ${deviceType}
                             </h5>
-                            <small>${deviceFirmwares.length} version${deviceFirmwares.length === 1 ? "" : "s"}</small>
                         </div>
+                        <small>${deviceFirmwares.length} version${deviceFirmwares.length === 1 ? "" : "s"}</small>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            ${deviceFirmwares.map((firmware) => createFirmwareCard(firmware)).join("")}
+                    <div class="collapse ${isExpanded}" id="${collapseId}">
+                        <div class="card-body">
+                            <div class="row">
+                                ${deviceFirmwares.map((firmware) => createFirmwareCard(firmware)).join("")}
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
 		})
 		.join("");
+
+	// Chevron icon rotation
+	document.querySelectorAll(".collapse").forEach((collapse) => {
+		const icon = document.querySelector(`.collapse-toggle-icon[data-target="${collapse.id}"]`);
+		if (icon) {
+			collapse.addEventListener("show.bs.collapse", () => (icon.style.transform = "rotate(90deg)"));
+			collapse.addEventListener("hide.bs.collapse", () => (icon.style.transform = "rotate(0deg)"));
+		}
+	});
 }
 
-function displayFirmwaresListView(grouped) {
+function displayFirmwaresListView(grouped, expandDeviceType = null) {
 	const container = document.getElementById("firmwaresList");
 
 	container.innerHTML = Object.keys(grouped)
 		.sort()
-		.map((deviceType) => {
+		.map((deviceType, index) => {
+			const collapseId = `collapseList${index}`;
 			const deviceFirmwares = grouped[deviceType];
+			const isExpanded = deviceType === document.getElementById("deviceFilter").value ? "show" : "";
+
 			return `
                 <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+                         role="button"
+                         data-bs-toggle="collapse"
+                         data-bs-target="#${collapseId}"
+                         aria-expanded="${isExpanded ? "true" : "false"}"
+                         aria-controls="${collapseId}">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-chevron-right me-2 collapse-toggle-icon transition" data-target="${collapseId}" style="transform: rotate(${
+				isExpanded ? 90 : 0
+			}deg); transition: transform 0.3s;"></i>
                             <h5 class="mb-0">
                                 <i class="fas fa-microchip me-2"></i>
                                 ${deviceType}
                             </h5>
-                            <small>${deviceFirmwares.length} version${deviceFirmwares.length === 1 ? "" : "s"}</small>
                         </div>
+                        <small>${deviceFirmwares.length} version${deviceFirmwares.length === 1 ? "" : "s"}</small>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Version</th>
-                                        <th>Description</th>
-                                        <th>Size</th>
-                                        <th>Upload Date</th>
-                                        <th>SHA1</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${deviceFirmwares.map((firmware) => createFirmwareRow(firmware)).join("")}
-                                </tbody>
-                            </table>
+                    <div class="collapse ${isExpanded}" id="${collapseId}">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Version</th>
+                                            <th>Description</th>
+                                            <th class="text-center align-middle" style="width: 160px;">Size</th>
+                                            <th class="text-center align-middle" style="width: 160px;">Upload Date</th>
+                                            <th class="text-center align-middle" style="width: 160px;">SHA1</th>
+                                            <th class="text-center align-middle" style="width: 160px;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${deviceFirmwares.map((firmware) => createFirmwareRow(firmware)).join("")}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
 		})
 		.join("");
+
+	// Optional: rotate chevron on toggle
+	document.querySelectorAll(".collapse").forEach((collapse) => {
+		const icon = document.querySelector(`.collapse-toggle-icon[data-target="${collapse.id}"]`);
+		if (icon) {
+			collapse.addEventListener("show.bs.collapse", () => (icon.style.transform = "rotate(90deg)"));
+			collapse.addEventListener("hide.bs.collapse", () => (icon.style.transform = "rotate(0deg)"));
+		}
+	});
 }
 
 function createFirmwareRow(firmware) {
@@ -188,14 +232,14 @@ function createFirmwareRow(firmware) {
                     ${firmware.description}
                 </div>
             </td>
-            <td>${formatFileSize(firmware.size)}</td>
-            <td>${formatDate(firmware.createdAt)}</td>
-            <td>
+            <td class="text-center align-middle">${formatFileSize(firmware.size)}</td>
+            <td class="text-center align-middle">${formatDate(firmware.createdAt)}</td>
+            <td class="text-center align-middle">
                 <code class="sha1-hash" title="Click to copy" onclick="copyToClipboard('${firmware.sha1}', event)">
                     ${firmware.sha1.substring(0, 14)}...
                 </code>
             </td>
-            <td>
+            <td class="text-end align-middle" style="width: 160px;">
                 <div class="btn-group" role="group">
                     <a href="/api/firmware/${firmware.id}/download" class="btn btn-outline-primary btn-sm px-3" title="Download">
                         <i class="fas fa-download"></i>
@@ -213,6 +257,7 @@ function createFirmwareRow(firmware) {
                     </button>
                 </div>
             </td>
+        </td>
         </tr>
     `;
 }
