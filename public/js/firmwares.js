@@ -99,42 +99,46 @@ async function loadFirmwares() {
 }
 
 function displayFirmwares(firmwares) {
-    const container = document.getElementById("firmwaresList");
+    return new Promise((resolve) => {
+        const container = document.getElementById("firmwaresList");
 
-    if (firmwares.length === 0) {
-        if (allFirmwares.length === 0) {
-            container.innerHTML = `
-				<div class="text-center py-5">
-					<i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-					<h5>No firmwares available</h5>
-					<p class="text-muted">Upload your first firmware to get started.</p>
-				</div>
-			`;
+        if (firmwares.length === 0) {
+            if (allFirmwares.length === 0) {
+                container.innerHTML = `
+					<div class="text-center py-5">
+						<i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+						<h5>No firmwares available</h5>
+						<p class="text-muted">Upload your first firmware to get started.</p>
+					</div>
+				`;
+            } else {
+                container.innerHTML = `
+					<div class="text-center py-5">
+						<i class="fas fa-search fa-3x text-muted mb-3"></i>
+						<h5>No firmwares match your filters</h5>
+						<p class="text-muted">Try adjusting your search criteria or <button type="button" class="btn btn-link p-0" onclick="clearAllFilters()">clear all filters</button>.</p>
+					</div>
+				`;
+            }
+            return resolve();
+        }
+
+        const grouped = firmwares.reduce((acc, firmware) => {
+            if (!acc[firmware.deviceType]) {
+                acc[firmware.deviceType] = [];
+            }
+            acc[firmware.deviceType].push(firmware);
+            return acc;
+        }, {});
+
+        if (currentView === "list") {
+            displayFirmwaresListView(grouped);
         } else {
-            container.innerHTML = `
-				<div class="text-center py-5">
-					<i class="fas fa-search fa-3x text-muted mb-3"></i>
-					<h5>No firmwares match your filters</h5>
-					<p class="text-muted">Try adjusting your search criteria or <button type="button" class="btn btn-link p-0" onclick="clearAllFilters()">clear all filters</button>.</p>
-				</div>
-			`;
+            displayFirmwaresGridView(grouped);
         }
-        return;
-    }
 
-    const grouped = firmwares.reduce((acc, firmware) => {
-        if (!acc[firmware.deviceType]) {
-            acc[firmware.deviceType] = [];
-        }
-        acc[firmware.deviceType].push(firmware);
-        return acc;
-    }, {});
-
-    if (currentView === "list") {
-        displayFirmwaresListView(grouped);
-    } else {
-        displayFirmwaresGridView(grouped);
-    }
+        resolve();
+    });
 }
 
 function displayFirmwaresGridView(grouped) {
@@ -752,7 +756,7 @@ function applyVersionFilter(firmwares, versionPattern) {
 
 function applyFiltersAndDisplay() {
     filteredFirmwares = applyFilters(allFirmwares);
-    displayFirmwares(filteredFirmwares);
+    AuthUpdateNetworkManager.register(displayFirmwares(filteredFirmwares), "renderFirmwares");
     updateResultsSummary();
 }
 
