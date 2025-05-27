@@ -16,8 +16,8 @@ function setupRefreshInterval() {
 }
 
 function displayOverviewStats(stats) {
-	document.getElementById("totalFirmwares").textContent = stats.count || 0;
-	document.getElementById("deviceTypes").textContent = stats.types.length || 0;
+	document.getElementById("totalFirmwares").textContent = stats.totalFirmwares || 0;
+	document.getElementById("deviceTypes").textContent = stats.deviceTypes.length || 0;
 	document.getElementById("totalSize").textContent = formatFileSize(stats.totalSize || 0);
 	document.getElementById("totalDownloads").textContent = stats.totalDownloads || 0;
 }

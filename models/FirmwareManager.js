@@ -91,7 +91,7 @@ class FirmwareManager {
         await this.ensureInitialized();
         return await this.storage.saveUser(user);
     }
-    
+
     async searchFirmwares(query) {
         await this.ensureInitialized();
         return await this.storage.searchFirmwares(query);
@@ -141,14 +141,12 @@ class FirmwareManager {
         try {
             await this.ensureInitialized();
 
-            const deviceTypes = await this.getDeviceTypes();
             const totalFirmwares = (await this.getAllFirmwares()).length;
 
             return {
                 status: "healthy",
                 storageType: this.getStorageType(),
-                deviceTypes: deviceTypes.length,
-                totalFirmwares,
+                totalFirmwares: totalFirmwares,
                 initialized: this.initialized
             };
         } catch (error) {

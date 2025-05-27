@@ -349,6 +349,54 @@ curl -O http://localhost:3000/api/550e8400-e29b-41d4-a716-446655440002/download
 
 ---
 
+### 5. System health, stats and analytics
+
+#### GET `/api/firmwares/stats`
+Get stats and analytics data about the system.
+
+**Response (Success - 200):**
+```json
+{
+  "totalFirmwares": 5,
+  "deviceTypes": [
+    "ESP32-DevKit",
+    "ESP32-C3"
+  ],
+  "totalSize": 124587,
+  "totalDownloads": 2
+}
+```
+
+#### GET `/api/health`
+Get stats and analytics data about the system.
+
+**Response (Success - 200):**
+```json
+{
+  "status": "healthy",
+  "storageType": "MongoDBStorage",
+  "totalFirmwares": 5,
+  "initialized": true
+}
+```
+
+**Response (Error - 503):**
+```json
+{
+  "status": "unhealthy",
+  "error": "Error message",
+  "storageType": "MongoDBStorage",
+  "initialized": false
+}
+```
+```json
+{
+  "status": "unhealthy",
+  "error": "Error message",
+}
+```
+---
+
 ## Data Models
 
 ### Firmware Object

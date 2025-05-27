@@ -313,16 +313,16 @@ class FileSystemStorage extends IFirmwareStorage {
 	 */
 	async getFirmwareStats() {
 		const stats = {
-			count: 0,
-			types: [],
+			totalFirmwares: 0,
+			deviceTypes: [],
 			totalSize: 0,
 		};
 
 		this.data.firmwares.forEach((fw) => {
-			stats.count++;
+			stats.totalFirmwares++;
 			stats.totalSize += fw.size || 0;
-			if (!stats.types.includes(fw.deviceType)) {
-				stats.types.push(fw.deviceType);
+			if (!stats.deviceTypes.includes(fw.deviceType)) {
+				stats.deviceTypes.push(fw.deviceType);
 			}
 		});
 

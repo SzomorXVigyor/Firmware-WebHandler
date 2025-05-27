@@ -575,17 +575,17 @@ class MongoDBStorage extends IFirmwareStorage {
 				{
 					$group: {
 						_id: null,
-						count: { $sum: 1 },
+						totalFirmwares: { $sum: 1 },
 						totalSize: { $sum: "$size" },
-						types: { $addToSet: "$deviceType" },
+						deviceTypes: { $addToSet: "$deviceType" },
 					},
 				},
 				{
 					$project: {
 						_id: 0,
-						count: 1,
+						totalFirmwares: 1,
 						totalSize: 1,
-						types: 1,
+						deviceTypes: 1,
 					},
 				},
 			];
