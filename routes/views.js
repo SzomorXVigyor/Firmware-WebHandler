@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const viewController = require("../controllers/viewController");
+const views = require("../view/index");
 
-// GET /
-router.get("/", viewController.renderHomePage);
+// Routes
+router.get("/", views.renderHomePage);
+router.get("/firmwares", views.renderFirmwaresPage);
+router.get("/upload", views.renderUploadPage);
+router.get("/statistics", views.renderStatisticsPage);
 
 module.exports = router;

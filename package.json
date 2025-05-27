@@ -1,41 +1,46 @@
 {
-  "name": "firmware-webmanager",
-  "version": "1.0.0",
-  "description": "Web service for handle multi device firmware files and indexes.",
-  "main": "index.js",
-  "repository": "https://github.com/SzomorXVigyor/Firmware-WebManager",
-  "author": "Aranyalma2",
-  "license": "MIT",
-  "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "lint:check": "eslint . --max-warnings 0",
-    "precommit": "yarn run lint:check"
-  },
-  "keywords": [
-    "firmware",
-    "management",
-    "server",
-    "api",
-    "upload",
-    "download"
-  ],
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "multer": "^2.0.0",
-    "semver": "^7.7.2",
-    "uuid": "^11.1.0"
-  },
-  "devDependencies": {
-    "eslint": "^9.27.0",
-    "nodemon": "^3.1.10"
-  },
-  "engines": {
-    "node": ">=16.0.0",
-    "yarn": ">=1.22.0"
-  }
+	"name": "firmware-webmanager",
+	"version": "1.1.0",
+	"description": "Web service for handle multi device firmware files and indexes.",
+	"main": "index.js",
+	"repository": "https://github.com/SzomorXVigyor/Firmware-WebManager",
+	"author": "Aranyalma2",
+	"license": "MIT",
+	"scripts": {
+		"start": "node app.js",
+		"dev": "nodemon --env-file=.env app.js",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"lint:check": "eslint . --max-warnings 0"
+	},
+	"keywords": [
+		"firmware",
+		"management",
+		"server",
+		"api",
+		"upload",
+		"download"
+	],
+	"dependencies": {
+		"bcrypt": "^6.0.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.5.0",
+		"express": "^5.1.0",
+		"helmet": "^8.1.0",
+		"jsonwebtoken": "^9.0.2",
+		"mongodb": "^6.16.0",
+		"morgan": "^1.10.0",
+		"multer": "^2.0.0",
+		"pg": "^8.16.0",
+		"semver": "^7.7.2",
+		"uuid": "^11.1.0"
+	},
+	"devDependencies": {
+		"eslint": "^9.27.0",
+		"nodemon": "^3.1.10"
+	},
+	"engines": {
+		"node": ">=16.0.0",
+		"yarn": ">=1.22.0"
+	}
 }

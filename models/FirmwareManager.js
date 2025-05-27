@@ -1,73 +1,162 @@
-const fs = require("fs");
 const semver = require("semver");
 const { v4: uuidv4 } = require("uuid");
-const config = require("../config/config");
+const FirmwareManagerFactory = require("./FirmwareManagerFactory");
 
+/**
+ * Modern FirmwareManager with pluggable storage backends
+ * No legacy support - clean async interface only
+ */
 class FirmwareManager {
-    constructor() {
-        this.data = this.loadData();
+    constructor(config = null) {
+        this.config = config || require("../config/config");
+
+        // Validate configuration
+        FirmwareManagerFactory.validateConfig(this.config);
+
+        // Create storage instance
+        this.storage = FirmwareManagerFactory.create(this.config);
+        this.initialized = false;
     }
 
-    loadData() {
-        try {
-            if (fs.existsSync(config.DATA_FILE)) {
-                return JSON.parse(fs.readFileSync(config.DATA_FILE, "utf8"));
-            }
-        } catch (error) {
-            console.error("Error loading data:", error);
-        }
-        return {
-            users: [{
-                id: "1",
-                username: "admin",
-                password: "$2a$12$uxVJ1DzzFDanM4ARDrbIR.E2WDwK.LtsyanVIWp/xhzkoaiTSuWZ2"
-            }],
-            firmwares: []
-        };
-    }
-
-    saveData() {
-        try {
-            // Ensure the data directory exists
-            const dataDir = config.DATA_FILE.substring(0, config.DATA_FILE.lastIndexOf("/"));
-            if (!fs.existsSync(dataDir)) {
-                fs.mkdirSync(dataDir, { recursive: true });
-            }
-            fs.writeFileSync(config.DATA_FILE, JSON.stringify(this.data, null, 2));
-        } catch (error) {
-            console.error("Error saving data:", error);
+    async initialize() {
+        if (!this.initialized) {
+            await this.storage.initialize();
+            this.initialized = true;
         }
     }
 
-    addFirmware(firmware) {
-        firmware.id = uuidv4();
-        firmware.uploadDate = new Date().toISOString();
-        this.data.firmwares.push(firmware);
-        this.saveData();
-        return firmware;
+    async ensureInitialized() {
+        if (!this.initialized) {
+            await this.initialize();
+        }
     }
 
-    getFirmwaresByDevice(deviceType) {
-        return this.data.firmwares
-            .filter(f => f.deviceType === deviceType)
-            .sort((a, b) => semver.rcompare(a.version, b.version));
+    /**
+     * Add firmware with file storage
+     * @param {Object} firmware - Firmware metadata
+     * @param {Buffer} fileBuffer - Firmware file buffer
+     * @returns {Promise<Object>} Saved firmware object
+     */
+    async addFirmware(firmware, fileBuffer) {
+        await this.ensureInitialized();
+        return await this.storage.addFirmware(firmware, fileBuffer);
     }
 
-    getAllFirmwares() {
-        return this.data.firmwares.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+    /**
+     * Get firmware file buffer
+     * @param {string} fileId - File identifier
+     * @returns {Promise<Buffer>} File buffer
+     */
+    async getFirmwareFile(fileId) {
+        await this.ensureInitialized();
+        return await this.storage.getFirmwareFile(fileId);
     }
 
-    getDeviceTypes() {
-        const types = [...new Set(this.data.firmwares.map(f => f.deviceType))];
-        return types.sort();
+    async getFirmwaresByDevice(deviceType) {
+        await this.ensureInitialized();
+        return await this.storage.getFirmwaresByDevice(deviceType);
     }
 
-    findUser(username) {
-        return this.data.users.find(u => u.username === username);
+    async getAllFirmwares() {
+        await this.ensureInitialized();
+        return await this.storage.getAllFirmwares();
     }
 
-    getFirmwareById(id) {
-        return this.data.firmwares.find(f => f.id === id);
+    async getDeviceTypes() {
+        await this.ensureInitialized();
+        return await this.storage.getDeviceTypes();
+    }
+
+    async findUser(username) {
+        await this.ensureInitialized();
+        return await this.storage.findUser(username);
+    }
+
+    async getFirmwareById(id) {
+        await this.ensureInitialized();
+        return await this.storage.getFirmwareById(id);
+    }
+
+    async updateFirmware(id, updates) {
+        await this.ensureInitialized();
+        return await this.storage.updateFirmware(id, updates);
+    }
+
+    async deleteFirmware(id) {
+        await this.ensureInitialized();
+        return await this.storage.deleteFirmware(id);
+    }
+
+    async saveUser(user) {
+        await this.ensureInitialized();
+        return await this.storage.saveUser(user);
+    }
+
+    async searchFirmwares(query) {
+        await this.ensureInitialized();
+        return await this.storage.searchFirmwares(query);
+    }
+
+    async getFirmwareStats() {
+        await this.ensureInitialized();
+        return await this.storage.getFirmwareStats();
+    }
+
+    async getAllAnalytics() {
+        await this.ensureInitialized();
+        return await this.storage.getAllAnalytics();
+    }
+
+    async getAnalytics(key) {
+        await this.ensureInitialized();
+        return await this.storage.getAnalytics(key);
+    }
+
+    async setAnalytics(key, value) {
+        await this.ensureInitialized();
+        return await this.storage.setAnalytics(key, value);
+    }
+
+    async close() {
+        if (this.storage) {
+            await this.storage.close();
+        }
+        this.initialized = false;
+    }
+
+    // Static method to create pre-initialized instance
+    static async create(config = null) {
+        const manager = new FirmwareManager(config);
+        await manager.initialize();
+        return manager;
+    }
+
+    // Utility method to check storage type
+    getStorageType() {
+        return this.storage.constructor.name;
+    }
+
+    // Health check method
+    async healthCheck() {
+        try {
+            await this.ensureInitialized();
+
+            const totalFirmwares = (await this.getAllFirmwares()).length;
+
+            return {
+                status: "healthy",
+                storageType: this.getStorageType(),
+                totalFirmwares: totalFirmwares,
+                initialized: this.initialized
+            };
+        } catch (error) {
+            return {
+                status: "unhealthy",
+                error: error.message,
+                storageType: this.getStorageType(),
+                initialized: this.initialized
+            };
+        }
     }
 }
 

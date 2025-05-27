@@ -84,6 +84,7 @@ Get all available firmwares, sorted by upload date (newest first).
 
 **Query Parameters:**
 - `device` (optional): Filter by device type
+- `search` (optional): Search in device type, description and version
 
 **Response (200):**
 ```json
@@ -93,22 +94,28 @@ Get all available firmwares, sorted by upload date (newest first).
     "deviceType": "ESP32-DevKit",
     "version": "2.1.0",
     "description": "Added WiFi security improvements and bug fixes",
-    "filename": "1703123456789-uuid.bin",
     "originalName": "esp32_firmware_v2.1.0.bin",
     "size": 1048576,
+    "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
     "uploadedBy": "admin",
-    "uploadDate": "2024-12-21T10:30:45.123Z"
+    "mimetype": "application/octet-stream",
+    "fileId": "1748343648895-42eb253c-7545-4433-914e-ea7fb1316de9.bin",
+    "createdAt": "2024-12-21T10:30:45.123Z"
   },
   {
     "id": "550e8400-e29b-41d4-a716-446655440001",
     "deviceType": "ESP32-DevKit",
     "version": "2.0.0",
     "description": "Major update with new features",
-    "filename": "1703023456789-uuid.bin",
     "originalName": "esp32_firmware_v2.0.0.bin",
     "size": 1024000,
+    "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
     "uploadedBy": "admin",
-    "uploadDate": "2024-12-20T15:20:30.456Z"
+    "mimetype": "application/octet-stream",
+    "fileId": "1748355133051-dd55540d-6571-4662-983c-634d04090434.bin",
+    "createdAt": "2024-12-20T15:20:30.456Z",
+    "updatedBy":"admin",
+    "updatedAt":"2025-05-27T14:13:38.034Z"
   }
 ]
 ```
@@ -133,15 +140,17 @@ Get specific firmware details by ID.
 **Response (Success - 200):**
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "deviceType": "ESP32-DevKit",
-  "version": "2.1.0",
-  "description": "Added WiFi security improvements and bug fixes",
-  "filename": "1703123456789-uuid.bin",
-  "originalName": "esp32_firmware_v2.1.0.bin",
-  "size": 1048576,
-  "uploadedBy": "admin",
-  "uploadDate": "2024-12-21T10:30:45.123Z"
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "deviceType": "ESP32-DevKit",
+    "version": "2.1.0",
+    "description": "Added WiFi security improvements and bug fixes",
+    "originalName": "esp32_firmware_v2.1.0.bin",
+    "size": 1048576,
+    "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
+    "uploadedBy": "admin",
+    "mimetype": "application/octet-stream",
+    "fileId": "1748343648895-42eb253c-7545-4433-914e-ea7fb1316de9.bin",
+    "createdAt": "2024-12-21T10:30:45.123Z"
 }
 ```
 
@@ -155,6 +164,98 @@ Get specific firmware details by ID.
 **Example:**
 ```bash
 curl http://localhost:3000/api/firmware/550e8400-e29b-41d4-a716-446655440000
+```
+
+#### PUT `/api/firmware/{id}`
+Get specific firmware metadata by ID.
+
+*Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: multipart/form-data
+```
+
+**Parameters:**
+- `id`: Firmware UUID
+
+**Form Data:**
+- `version` (string): Semantic version (e.g., "1.0.0", "2.1.3")
+- `description` (string): Description of the firmware
+
+**Response (Success - 200):**
+```json
+{
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "deviceType": "ESP32-DevKit",
+    "version": "2.3.0",
+    "description": "Added WiFi security improvements and bug fixes",
+    "originalName": "esp32_firmware_v2.3.0.bin",
+    "size": 1048596,
+    "sha1": "da6ae879e64c7a02b7770175186cc3e08a0fc470",
+    "uploadedBy": "admin",
+    "mimetype": "application/octet-stream",
+    "fileId": "1748343648895-42eb253c-7545-4433-914e-ea7fb1316de9.bin",
+    "createdAt": "2024-12-21T10:30:45.123Z",
+    "updatedBy":"admin",
+    "updatedAt":"2025-05-27T14:13:38.034Z"
+}
+```
+**Response (Error - 400):**
+```json
+{
+  "error": "Invalid version format. Must follow semantic versioning (e.g., 1.0.0)"
+}
+```
+```json
+{
+  "error": "Version, and description are required"
+}
+```
+
+**Response (Error - 401):**
+```json
+{
+  "error": "Access token required"
+}
+```
+
+**Response (Error - 404):**
+```json
+{
+  "error": "Firmware not found"
+}
+```
+
+#### DELETE `/api/firmware/{id}`
+Delete specific firmware by ID.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Parameters:**
+- `id`: Firmware UUID
+
+**Response (Success - 200):**
+```json
+{
+  "message": "Firmware deleted successfully"
+}
+```
+
+**Response (Error - 401):**
+```json
+{
+  "error": "Access token required"
+}
+```
+
+**Response (Error - 404):**
+```json
+{
+  "error": "Firmware not found"
+}
 ```
 
 ---
@@ -183,11 +284,13 @@ Content-Type: multipart/form-data
   "deviceType": "ESP32-DevKit",
   "version": "2.2.0",
   "description": "Performance improvements and new sensor support",
-  "filename": "1703223456789-newuuid.bin",
   "originalName": "my_firmware.bin",
   "size": 1200000,
+  "sha1": "6de17b4f9869b64b1cebc9cf66b92326d71bcce0",
   "uploadedBy": "admin",
-  "uploadDate": "2024-12-22T08:15:20.789Z"
+  "mimetype": "application/octet-stream",
+  "fileId": "1748277113189-68021285-8457-471e-aea7-c6720dad13cd.bin",
+  "createdAt":"2025-05-27T14:13:38.034Z"
 }
 ```
 
@@ -195,6 +298,16 @@ Content-Type: multipart/form-data
 ```json
 {
   "error": "Invalid version format. Must follow semantic versioning (e.g., 1.0.0)"
+}
+```
+```json
+{
+  "error": "Device type, version, and description are required"
+}
+```
+```json
+{
+  "error": "This version already exists for this device type"
 }
 ```
 
@@ -219,11 +332,11 @@ curl -X POST http://localhost:3000/api/firmware/upload \
 
 ### 5. File Download
 
-#### GET `/downloads/{filename}`
-Download firmware file directly. **No authentication required.**
+#### GET `/api/firmware/{id}/download`
+Download firmware file. **No authentication required.**
 
 **Parameters:**
-- `filename`: The filename returned from firmware metadata
+- `id`: The id returned from firmware metadata
 
 **Response:**
 - Binary file download with appropriate headers
@@ -231,12 +344,57 @@ Download firmware file directly. **No authentication required.**
 **Example:**
 ```bash
 # Download firmware file
-curl -O http://localhost:3000/downloads/1703123456789-uuid.bin
-
-# Download with original filename
-curl -o esp32_firmware.bin http://localhost:3000/downloads/1703123456789-uuid.bin
+curl -O http://localhost:3000/api/550e8400-e29b-41d4-a716-446655440002/download
 ```
 
+---
+
+### 5. System health, stats and analytics
+
+#### GET `/api/firmwares/stats`
+Get stats and analytics data about the system.
+
+**Response (Success - 200):**
+```json
+{
+  "totalFirmwares": 5,
+  "deviceTypes": [
+    "ESP32-DevKit",
+    "ESP32-C3"
+  ],
+  "totalSize": 124587,
+  "totalDownloads": 2
+}
+```
+
+#### GET `/api/health`
+Get stats and analytics data about the system.
+
+**Response (Success - 200):**
+```json
+{
+  "status": "healthy",
+  "storageType": "MongoDBStorage",
+  "totalFirmwares": 5,
+  "initialized": true
+}
+```
+
+**Response (Error - 503):**
+```json
+{
+  "status": "unhealthy",
+  "error": "Error message",
+  "storageType": "MongoDBStorage",
+  "initialized": false
+}
+```
+```json
+{
+  "status": "unhealthy",
+  "error": "Error message",
+}
+```
 ---
 
 ## Data Models
@@ -248,11 +406,15 @@ curl -o esp32_firmware.bin http://localhost:3000/downloads/1703123456789-uuid.bi
   "deviceType": "string",
   "version": "string (SemVer format)",
   "description": "string",
-  "filename": "string (internal filename)",
   "originalName": "string (original upload filename)",
   "size": "number (bytes)",
+  "sha1": "SHA1 hash of the file",
   "uploadedBy": "string (username)",
-  "uploadDate": "string (ISO 8601 datetime)"
+  "mimetype": " string (mime type)",
+  "fileId": "string (legacy id)",
+  "createdAt": "string (ISO 8601 datetime)",
+  "updatedBy": "string (username)",
+  "updatedAt": "string (ISO 8601 datetime)""
 }
 ```
 
@@ -285,73 +447,11 @@ All error responses follow this format:
 
 ---
 
-## Hardware Integration Examples
-
-### Arduino/ESP32 Example
-```cpp
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
-
-void checkForUpdates() {
-  HTTPClient http;
-  http.begin("http://your-server.com/api/firmwares?device=ESP32-DevKit");
-  
-  int httpCode = http.GET();
-  if (httpCode == 200) {
-    String payload = http.getString();
-    
-    DynamicJsonDocument doc(4096);
-    deserializeJson(doc, payload);
-    
-    String latestVersion = doc[0]["version"];
-    String downloadUrl = "http://your-server.com/downloads/" + doc[0]["filename"].as<String>();
-    
-    // Compare with current version and download if needed
-    if (isNewerVersion(latestVersion, CURRENT_VERSION)) {
-      downloadFirmware(downloadUrl);
-    }
-  }
-  http.end();
-}
-```
-
-### Python Example
-```python
-import requests
-
-def get_latest_firmware(device_type):
-    response = requests.get(f"http://localhost:3000/api/firmwares?device={device_type}")
-    if response.status_code == 200:
-        firmwares = response.json()
-        if firmwares:
-            latest = firmwares[0]  # Already sorted by version
-            return latest
-    return None
-
-def download_firmware(firmware_info, save_path):
-    download_url = f"http://localhost:3000/downloads/{firmware_info['filename']}"
-    response = requests.get(download_url)
-    
-    if response.status_code == 200:
-        with open(save_path, 'wb') as f:
-            f.write(response.content)
-        return True
-    return False
-
-# Usage
-latest = get_latest_firmware("ESP32-DevKit")
-if latest:
-    print(f"Latest version: {latest['version']}")
-    download_firmware(latest, "firmware.bin")
-```
-
----
-
 ## Rate Limiting & File Limits
 
 ### Upload Limits
-- Maximum file size: **100MB**
-- Supported file types: Any binary file
+- Maximum file size: **100MB** (default)
+- Supported file types: .bin, .hex, .elf, .ino, .cpp, .c, .h
 - No rate limiting currently implemented
 
 ### Query Limits
