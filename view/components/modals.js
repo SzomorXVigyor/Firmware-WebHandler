@@ -4,7 +4,7 @@
  */
 
 const generateLoginModal = () => {
-	return `
+    return `
     <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1">
         <div class="modal-dialog">
@@ -36,7 +36,7 @@ const generateLoginModal = () => {
 
 // You can add more modals here as needed
 const generateConfirmModal = (id = "confirmModal", title = "Confirm Action") => {
-	return `
+    return `
     <!-- Confirm Modal -->
     <div class="modal fade" id="${id}" tabindex="-1">
         <div class="modal-dialog">
@@ -58,6 +58,6 @@ const generateConfirmModal = (id = "confirmModal", title = "Confirm Action") => 
 };
 
 module.exports = {
-	generateLoginModal,
-	generateConfirmModal,
+    generateLoginModal,
+    generateConfirmModal,
 };

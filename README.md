@@ -182,7 +182,7 @@ curl "http://your-server.com/api/firmwares?device=ESP32-DevKit"
 curl -O "http://your-server.com/550e8400-e29b-41d4-a716-446655440002/download"
 ```
 
-📚 **[Complete API Documentation](API_Documentation.md)**
+📚 **[Complete API Documentation](API.md)**
 
 ### Custom Device Types
 Device types are automatically created when uploading firmware. No pre-configuration needed.

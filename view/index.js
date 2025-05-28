@@ -9,8 +9,8 @@ const { renderUploadPage } = require("./upload");
 const { renderStatisticsPage } = require("./statistics");
 
 module.exports = {
-	renderHomePage,
-	renderFirmwaresPage,
-	renderUploadPage,
-	renderStatisticsPage,
+    renderHomePage,
+    renderFirmwaresPage,
+    renderUploadPage,
+    renderStatisticsPage,
 };

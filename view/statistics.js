@@ -6,7 +6,7 @@
 const { generatePageWrapper } = require("./components");
 
 const renderStatisticsPage = (req, res) => {
-	const content = `
+    const content = `
     <main class="container-fluid flex-grow-1 mt-4">
         <div class="container">
             <div class="row">
@@ -133,16 +133,16 @@ const renderStatisticsPage = (req, res) => {
         </div>
     </main>`;
 
-	const html = generatePageWrapper(content, {
-		title: "Firmware Management Server - Statistics",
-		activePage: "statistics",
-		includeChartJs: true,
-		pageScripts: ["/js/statistics.js"],
-	});
+    const html = generatePageWrapper(content, {
+        title: "Firmware Management Server - Statistics",
+        activePage: "statistics",
+        includeChartJs: true,
+        pageScripts: ["/js/statistics.js"],
+    });
 
-	res.send(html);
+    res.send(html);
 };
 
 module.exports = {
-	renderStatisticsPage,
+    renderStatisticsPage,
 };

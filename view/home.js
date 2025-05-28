@@ -6,7 +6,7 @@
 const { generatePageWrapper } = require("./components");
 
 const renderHomePage = (req, res) => {
-	const content = `
+    const content = `
     <main class="container-fluid flex-grow-1 mt-4">
         <div class="container">
             <div class="row">
@@ -57,15 +57,15 @@ const renderHomePage = (req, res) => {
         </div>
     </main>`;
 
-	const html = generatePageWrapper(content, {
-		title: "Firmware Management Server - Home",
-		activePage: "home",
-		pageScripts: ["/js/home.js"],
-	});
+    const html = generatePageWrapper(content, {
+        title: "Firmware Management Server - Home",
+        activePage: "home",
+        pageScripts: ["/js/home.js"],
+    });
 
-	res.send(html);
+    res.send(html);
 };
 
 module.exports = {
-	renderHomePage,
+    renderHomePage,
 };
