@@ -27,13 +27,12 @@ This module provides a simple way to automatically update the firmware of ESP32 
    const char* WIFI_PASSWORD = "your-wifi-password";
    const String FIRMWARE_SERVER = "http://your-server-ip:3000";
    const String DEVICE_TYPE = "ESP32-DevKit";
-   const String CURRENT_VERSION = "1.0.0";
    ```
 
 2. **Create the Updater Instance:**
 
    ```cpp
-   FirmwareUpdater updater(FIRMWARE_SERVER, DEVICE_TYPE, CURRENT_VERSION, VERSION_COMPARE);
+   FirmwareUpdater updater(FIRMWARE_SERVER, DEVICE_TYPE, VERSION_COMPARE);
    ```
 
    - `VERSION_COMPARE` (default): checks by version number.
@@ -46,6 +45,7 @@ This module provides a simple way to automatically update the firmware of ESP32 
        Serial.begin(115200);
        WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
        // Wait for WiFi connection...
+       updater.setup();
        updater.printCurrentInfo();
        updater.checkForUpdate(); // Check and update if needed
    }
@@ -160,27 +160,21 @@ private:
     }
 
 public:
-    FirmwareUpdater(String url, String device, String version, UpdateCheckMode mode = VERSION_COMPARE) {
+    FirmwareUpdater(String url, String device, UpdateCheckMode mode = VERSION_COMPARE) {
         serverUrl = url;
         deviceType = device;
-        currentVersion = version;
         checkMode = mode;
+    }
 
-        // Initialize preferences
-        prefs.begin("firmware", false);
+    void setup() {
+      // Initialize preferences
+        prefs.begin("firmware", true);
 
         // Load saved version/sha1 or save current ones
-        String savedVersion = prefs.getString("version", "");
-        String savedSha1 = prefs.getString("sha1", "");
+        currentVersion = prefs.getString("version", "0.0.0");
+        currentSha1 = prefs.getString("sha1", "null");
 
-        if (savedVersion == "") {
-            // First run - save current version
-            prefs.putString("version", currentVersion);
-            Serial.println("Saved current version: " + currentVersion);
-        } else {
-            currentVersion = savedVersion;
-            currentSha1 = savedSha1;
-        }
+        prefs.end();
     }
 
     // Set the update check mode
@@ -233,7 +227,7 @@ public:
         bool needUpdate = false;
 
         if (checkMode == SHA1_COMPARE) {
-            if (currentSha1 != "" && currentSha1 != latestSha1) {
+            if (currentSha1 != latestSha1) {
                 needUpdate = true;
                 Serial.println("SHA1 hash changed - update needed");
             } else {
@@ -332,9 +326,15 @@ public:
             if (Update.isFinished()) {
                 Serial.println("OTA Update completed successfully!");
 
+                prefs.begin("firmware", false);
+
                 // Save new version info
                 prefs.putString("version", newVersion);
                 prefs.putString("sha1", newSha1);
+
+                Serial.println("New Version: " + newVersion + " (New SHA1: " + newSha1 + ")");
+
+                prefs.end();
 
                 Serial.println("Rebooting in 3 seconds...");
                 delay(3000);
@@ -367,17 +367,18 @@ const char* WIFI_SSID = "your-wifi-ssid";
 const char* WIFI_PASSWORD = "your-wifi-password";
 const String FIRMWARE_SERVER = "http://192.168.1.100:3000";  // Your server IP
 const String DEVICE_TYPE = "ESP32-DevKit";
-const String CURRENT_VERSION = "1.0.0";  // Update this with each firmware version
 
 // Create updater instance with VERSION_COMPARE mode (default)
 // Change to SHA1_COMPARE if you want to use hash comparison instead
-FirmwareUpdater updater(FIRMWARE_SERVER, DEVICE_TYPE, CURRENT_VERSION, VERSION_COMPARE);
+FirmwareUpdater updater(FIRMWARE_SERVER, DEVICE_TYPE, VERSION_COMPARE);
 
 void setup() {
     Serial.begin(115200);
     delay(1000);
 
     Serial.println("ESP32 OTA Updater Starting...");
+
+    updater.setup();
 
     // Connect to WiFi
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -391,11 +392,11 @@ void setup() {
     Serial.println();
     Serial.println("WiFi connected: " + WiFi.localIP().toString());
 
+    // Optionally change check mode at runtime
+    updater.setCheckMode(SHA1_COMPARE);
+
     // Print current firmware info
     updater.printCurrentInfo();
-
-    // Optionally change check mode at runtime
-    // updater.setCheckMode(SHA1_COMPARE);
 
     // Check for updates immediately
     Serial.println("\nChecking for firmware updates...");
