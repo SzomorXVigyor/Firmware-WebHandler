@@ -102,7 +102,6 @@ async function loadRecentUploads() {
         `;
     }
 }
-
 function displayRecentUploads(firmwares) {
     const container = document.getElementById("recentUploads");
 
@@ -115,23 +114,22 @@ function displayRecentUploads(firmwares) {
         return;
     }
 
+    const recentFirmwares = [...firmwares].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+
     container.innerHTML = `
         <div class="list-group">
-            ${firmwares
-        .map(
-            (firmware) => `
+            ${recentFirmwares.map((firmware) => `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
                         <div class="fw-bold">${firmware.deviceType}</div>
-                        <small class="text-muted">${firmware.version} - ${formatDate(firmware.uploadDate)}</small>
+                        <small class="text-muted">${firmware.version} - ${formatDate(firmware.createdAt)}</small>
                     </div>
                     <div>
                         <span class="badge ${getVersionBadgeClass(firmware.version)} me-2">${firmware.version}</span>
                         <small class="text-muted">${formatFileSize(firmware.size)}</small>
                     </div>
                 </div>
-            `,
-        )
+            `)
         .join("")}
         </div>
     `;

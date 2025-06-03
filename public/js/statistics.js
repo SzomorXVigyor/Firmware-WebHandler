@@ -194,23 +194,20 @@ function displayDeviceSummaryTable(data) {
 function displayRecentActivity(firmwares) {
     const container = document.getElementById("recentActivity");
 
-    // Sort by upload date (most recent first) and take first 5
-    const recentFirmwares = firmwares.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)).slice(0, 5);
-
-    if (recentFirmwares.length === 0) {
+    if (firmwares.length === 0) {
         container.innerHTML = `
             <div class="text-center py-3">
-                <p class="text-muted">No recent activity</p>
+                <p class="text-muted">No recent uploads</p>
             </div>
         `;
         return;
     }
 
+    const recentFirmwares = [...firmwares].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+
     container.innerHTML = `
         <div class="list-group list-group-flush">
-            ${recentFirmwares
-        .map(
-            (firmware) => `
+            ${recentFirmwares.map((firmware) => `
                 <div class="list-group-item px-0">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
@@ -220,12 +217,11 @@ function displayRecentActivity(firmwares) {
                         <div class="text-end">
                             <span class="badge ${getVersionBadgeClass(firmware.version)} mb-1">${firmware.version}</span>
                             <br>
-                            <small class="text-muted">${formatDate(firmware.uploadDate)}</small>
+                            <small class="text-muted">${formatDate(firmware.createdAt)}</small>
                         </div>
                     </div>
                 </div>
-            `,
-        )
+            `)
         .join("")}
         </div>
     `;
