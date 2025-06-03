@@ -8,8 +8,8 @@ This module provides a simple way to automatically update the firmware of ESP32 
 
 - **Automatic OTA Update:** Periodically checks a remote server for updated firmware and performs a secure OTA update if a new version is available.
 - **Flexible Update Check:** Supports two update check modes:
-  - **Semantic Version Compare:** Updates when the server reports a newer version number.
-  - **SHA1 Hash Compare:** Updates when the firmware binary hash changes.
+  - **Semantic Version Compare:** Updates when the server reports a newer version number. (Example update only stable X.X.X formats)
+  - **SHA1 Hash Compare:** Updates when the firmware binary hash changes. (Always update if it has different SHA1)
 - **Persistent State:** Stores the current version and SHA1 hash in non-volatile storage (`Preferences`).
 - **Progress Reporting:** Prints update progress to the serial console.
 - **Automatic Reboot:** Reboots the ESP32 automatically after a successful update.
