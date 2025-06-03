@@ -184,9 +184,9 @@ curl -O "http://your-server.com/550e8400-e29b-41d4-a716-446655440002/download"
 
 ### Extras
 
-📚 **[Complete API Documentation](docs/API.md)**
-🚀 **[GitHub auto deploy workflow](docs/GITHUB.md)**
-📡 **[ESP32 client implementation example](docs/API.md)**
+📚 **[Complete API Documentation](docs/API.md)**\
+🚀 **[GitHub auto deploy workflow](docs/GITHUB.md)**\
+📡 **[ESP32 client implementation example](docs/CLIENT.md)**
 
 ### Custom Device Types
 Device types are automatically created when uploading firmware. No pre-configuration needed.
