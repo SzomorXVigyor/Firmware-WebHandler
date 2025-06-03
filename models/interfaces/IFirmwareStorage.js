@@ -39,17 +39,25 @@ class IFirmwareStorage {
     /**
 	 * Get firmwares filtered by device type
 	 * @param {string} deviceType - Device type to filter by
+     * @param {Object} options - Filter options
+     * @param {number|null} options.limit - Maximum number of results to return
+     * @param {boolean} options.onlyStable - Whether to filter only stable versions (no pre-release)
+     * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @returns {Promise<Array>} Array of firmware objects
 	 */
-    async getFirmwaresByDevice(deviceType) {
+    async getFirmwaresByDevice(deviceType, options = {}) {
         throw new Error("Method 'getFirmwaresByDevice' must be implemented");
     }
 
     /**
 	 * Get all firmwares
+     * @param {Object} options - Filter options
+     * @param {number|null} options.limit - Maximum number of results to return
+     * @param {boolean} options.onlyStable - Whether to filter only stable versions (no pre-release)
+     * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @returns {Promise<Array>} Array of all firmware objects
 	 */
-    async getAllFirmwares() {
+    async getAllFirmwares(options = {}) {
         throw new Error("Method 'getAllFirmwares' must be implemented");
     }
 
@@ -110,9 +118,13 @@ class IFirmwareStorage {
     /**
 	 * Search firmwares
 	 * @param {string} query - Search query
+     * @param {Object} options - Filter options
+     * @param {number|null} options.limit - Maximum number of results to return
+     * @param {boolean} options.onlyStable - Whether to filter only stable versions (no pre-release)
+     * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @returns {Promise<Array>} Array of matching firmware objects
 	 */
-    async searchFirmwares(query) {
+    async searchFirmwares(query, options = {}) {
         throw new Error("Method 'searchFirmwares' must be implemented");
     }
 

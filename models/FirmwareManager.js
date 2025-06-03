@@ -52,14 +52,14 @@ class FirmwareManager {
         return await this.storage.getFirmwareFile(fileId);
     }
 
-    async getFirmwaresByDevice(deviceType) {
+    async getFirmwaresByDevice(deviceType, options = {}) {
         await this.ensureInitialized();
-        return await this.storage.getFirmwaresByDevice(deviceType);
+        return await this.storage.getFirmwaresByDevice(deviceType, options);
     }
 
-    async getAllFirmwares() {
+    async getAllFirmwares(options = {}) {
         await this.ensureInitialized();
-        return await this.storage.getAllFirmwares();
+        return await this.storage.getAllFirmwares(options);
     }
 
     async getDeviceTypes() {
@@ -92,9 +92,9 @@ class FirmwareManager {
         return await this.storage.saveUser(user);
     }
 
-    async searchFirmwares(query) {
+    async searchFirmwares(query, options = {}) {
         await this.ensureInitialized();
-        return await this.storage.searchFirmwares(query);
+        return await this.storage.searchFirmwares(query, options);
     }
 
     async getFirmwareStats() {

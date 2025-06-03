@@ -83,8 +83,11 @@ curl http://localhost:3000/api/devices
 Get all available firmwares, sorted by upload date (newest first).
 
 **Query Parameters:**
-- `device` (optional): Filter by device type
-- `search` (optional): Search in device type, description and version
+- `device`  (optional): Filter by device type
+- `search`  (optional): Search in device type, description and version
+- `number`  (optional): Show the first *n* number of result
+- `stable`  (optional): Show only stable versions
+- `minimal` (optional): Return only *id*, *version* and *sha1* attributes
 
 **Response (200):**
 ```json

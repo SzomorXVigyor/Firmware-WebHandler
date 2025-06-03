@@ -29,15 +29,23 @@ const getDevices = async (req, res) => {
 const getFirmwares = async (req, res) => {
     try {
         const manager = await initializeFirmwareManager();
-        const { device, search } = req.query;
+        const { device, search, number, stable, minimal } = req.query;
+
+        // Create options object for filtering
+        const options = {
+            limit: number ? parseInt(number, 10) : null,
+            onlyStable: stable === 'true' || stable === '1' || stable === 'on',
+            minimal: minimal === 'true' || minimal === '1' || minimal === 'on',
+        };
 
         let firmwares;
+
         if (search) {
-            firmwares = await manager.searchFirmwares(search);
+            firmwares = await manager.searchFirmwares(search, options);
         } else if (device) {
-            firmwares = await manager.getFirmwaresByDevice(device);
+            firmwares = await manager.getFirmwaresByDevice(device, options);
         } else {
-            firmwares = await manager.getAllFirmwares();
+            firmwares = await manager.getAllFirmwares(options);
         }
 
         res.json(firmwares);

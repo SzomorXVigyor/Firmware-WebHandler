@@ -190,7 +190,7 @@ public:
         }
 
         HTTPClient http;
-        String url = serverUrl + "/api/firmwares?device=" + deviceType;
+        String url = serverUrl + "/api/firmwares?minimal=1&number=1&device=" + deviceType;
 
         Serial.println("Checking for updates: " + url);
         http.begin(url);
@@ -206,7 +206,7 @@ public:
         http.end();
 
         // Parse JSON response
-        DynamicJsonDocument doc(4096);
+        JsonDocument doc;
         deserializeJson(doc, payload);
 
         if (doc.size() == 0) {
@@ -214,7 +214,7 @@ public:
             return false;
         }
 
-        // Get latest firmware (first in array - sorted by date)
+        // Get latest firmware (first and only in array - sorted by date)
         JsonObject latest = doc[0];
         String latestVersion = latest["version"];
         String latestSha1 = latest["sha1"];

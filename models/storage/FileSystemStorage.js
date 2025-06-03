@@ -151,22 +151,34 @@ class FileSystemStorage extends IFirmwareStorage {
 	 * This method retrieves all firmware records that match the specified device type,
 	 * sorted by version in descending order.
 	 * @param {string} deviceType - Device type to filter by
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @return {Promise<Array>} Array of firmware objects matching the device type
 	 * @throws {Error} If there is an error retrieving the data
 	 */
-    async getFirmwaresByDevice(deviceType) {
-        return this.data.firmwares.filter((f) => f.deviceType === deviceType).sort((a, b) => semver.rcompare(a.version, b.version));
+    async getFirmwaresByDevice(deviceType, options = {}) {
+        const firmwares = this.data.firmwares.filter((f) => f.deviceType === deviceType).sort((a, b) => semver.rcompare(a.version, b.version));
+
+        return this.applyFilters(firmwares, options);
     }
 
     /**
 	 * Get all firmwares
 	 * This method retrieves all firmware records,
 	 * sorted by upload date in descending order.
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @return {Promise<Array>} Array of all firmware objects
 	 * @throws {Error} If there is an error retrieving the data
 	 */
-    async getAllFirmwares() {
-        return this.data.firmwares.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+    async getAllFirmwares(options = {}) {
+        const firmwares = this.data.firmwares.sort((a, b) => new Date(b.uploadDate || b.createdAt) - new Date(a.uploadDate || a.createdAt));
+
+        return this.applyFilters(firmwares, options);
     }
 
     /**
@@ -291,17 +303,22 @@ class FileSystemStorage extends IFirmwareStorage {
 	 * This method searches for firmware records that match the provided query
 	 * in deviceType, description, or version fields.
 	 * @param {string} query - Search term to filter firmwares
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
 	 * @return {Promise<Array>} Array of firmware objects matching the search criteria
 	 * @throws {Error} If there is an error searching the data
 	 */
-    async searchFirmwares(query) {
+    async searchFirmwares(query, options = {}) {
         const searchTerm = query.toLowerCase();
-        return this.data.firmwares.filter(
+        const firmwares = this.data.firmwares.filter(
             (fw) =>
                 fw.deviceType.toLowerCase().includes(searchTerm) ||
 				fw.description.toLowerCase().includes(searchTerm) ||
 				fw.version.toLowerCase().includes(searchTerm),
         );
+
+        return this.applyFilters(firmwares, options);
     }
 
     /**
@@ -409,6 +426,50 @@ class FileSystemStorage extends IFirmwareStorage {
 	 */
     async close() {
         console.log("FileSystem storage closed");
+    }
+
+    /** --- Extra local helper methods --- */
+
+    /**
+	 * Helper method to apply filters (stable versions and limit)
+	 * @param {Array} firmwares - Array of firmware objects
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
+	 * @return {Array} Filtered array of firmware objects
+	 */
+    applyFilters(firmwares, options = {}) {
+        let filtered = firmwares;
+
+        // Filter stable versions if requested
+        if (options.onlyStable) {
+            filtered = filtered.filter((fw) => {
+                try {
+                    return semver.prerelease(fw.version) === null;
+                } catch (error) {
+                    // If version is not valid semver, exclude it when filtering for stable
+                    console.warn(`Invalid semver version: ${fw.version}`);
+                    return false;
+                }
+            });
+        }
+
+        // Apply limit if specified
+        if (options.limit && options.limit > 0) {
+            filtered = filtered.slice(0, options.limit);
+        }
+
+        // Apply minimal formatting if requested
+        if (options.minimal) {
+            filtered = filtered.map((fw) => ({
+                id: fw.id,
+                version: fw.version,
+                sha1: fw.sha1,
+            }));
+        }
+
+        return filtered;
     }
 }
 
