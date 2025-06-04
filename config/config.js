@@ -34,7 +34,7 @@ module.exports = {
     BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS) || 12,
 
     // CORS configuration
-    CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+    ALLOWED_ORIGINS: process.env.CORS_ORIGIN && process.env.CORS_ORIGIN.trim() !== "" ? process.env.CORS_ORIGIN.split(",").map((type) => type.trim()) : false,
 
     // Logging
     LOG_LEVEL: process.env.LOG_LEVEL || "info",
