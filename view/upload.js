@@ -87,6 +87,7 @@ const renderUploadPage = (req, res) => {
         title: "Firmware Management Server - Upload",
         activePage: "upload",
         isUploadPage: true,
+        pageCSS: ["/css/upload.css"],
         pageScripts: ["/js/upload.js"],
     });
 

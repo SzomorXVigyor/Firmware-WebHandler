@@ -21,6 +21,7 @@ const generatePageWrapper = (content, options = {}) => {
         activePage = "",
         isUploadPage = false,
         pageScripts = [],
+        pageCSS = [],
         includeChartJs = false,
         includeConfirmModal = false,
     } = options;
@@ -29,7 +30,7 @@ const generatePageWrapper = (content, options = {}) => {
 
     const modals = [generateLoginModal(), ...(includeConfirmModal ? [generateConfirmModal()] : [])].join("\n    ");
 
-    return `${generateHtmlHead(title, includeChartJs)}
+    return `${generateHtmlHead(title, pageCSS, includeChartJs)}
     ${navigation}
 
     ${content}
