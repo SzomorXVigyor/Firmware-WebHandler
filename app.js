@@ -6,11 +6,6 @@ const routes = require("./routes");
 
 const app = express();
 
-// Ensure upload directory exists
-if (!fs.existsSync(config.UPLOAD_DIR)) {
-    fs.mkdirSync(config.UPLOAD_DIR, { recursive: true });
-}
-
 // Apply middleware
 middleware(app);
 

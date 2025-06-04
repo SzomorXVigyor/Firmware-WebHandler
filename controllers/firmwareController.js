@@ -106,7 +106,7 @@ const uploadFirmware = async (req, res) => {
         const manager = await initializeFirmwareManager();
 
         if (!req.file) {
-            return res.status(400).json({ error: "No file uploaded" });
+            return res.status(400).json({ error: `No file uploaded. Supported formats: ${config.ALLOWED_FILE_TYPES}` });
         }
 
         const { deviceType, version, description } = req.body;

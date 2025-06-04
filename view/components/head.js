@@ -15,6 +15,7 @@ const generateHtmlHead = (title = "Firmware Management Server", pageCSS = [], in
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/css/common.css" rel="stylesheet">
     ${pageCSS.map(css => `<link href="${css}" rel="stylesheet">`).join("\n    ")}
+    <script src="/js/config.js"></script>
     ${includeChartJs ? '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>' : ""}
 </head>
 <body class="d-flex flex-column min-vh-100">`;

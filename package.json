@@ -7,7 +7,7 @@
 	"author": "Aranyalma2",
 	"license": "MIT",
 	"scripts": {
-		"start": "node app.js",
+		"start": "node --env-file=.env app.js",
 		"dev": "nodemon --env-file=.env app.js",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",

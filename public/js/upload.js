@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
+    ConfigManager.onReady(() => setSupportedFormats());
     loadRecentUploads();
     setupDeviceTypeAutocomplete();
 
@@ -17,6 +18,16 @@ function setupEventListeners() {
     const fileInput = document.getElementById("firmwareFile");
     if (fileInput) {
         fileInput.addEventListener("change", validateFileInput);
+    }
+}
+
+function setSupportedFormats() {
+    const formats = GLOBAL_CONFIG.ALLOWED_FILE_TYPES.join(", ");
+    if (GLOBAL_CONFIG.ALLOWED_FILE_TYPES.length === 0) {
+        document.getElementById("supported-formats").textContent = "All file types are supported";
+    } else if (GLOBAL_CONFIG.ALLOWED_FILE_TYPES.length > 0) {
+        document.getElementById("supported-formats").textContent = `Supported formats: ${formats}`;
+        document.getElementById("firmwareFile").setAttribute("accept", GLOBAL_CONFIG.ALLOWED_FILE_TYPES.join(","));
     }
 }
 
@@ -159,7 +170,14 @@ function validateFileInput(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const allowedTypes = [".bin", ".hex", ".elf", ".ino", ".cpp", ".c", ".h"];
+    // Check file size
+    if (file.size > GLOBAL_CONFIG.MAX_FILE_SIZE) {
+        showAlert(`File size exceeds ${formatFileSize(GLOBAL_CONFIG.MAX_FILE_SIZE)} limit`, "warning");
+        event.target.value = "";
+        return;
+    }
+
+    const allowedTypes = GLOBAL_CONFIG.ALLOWED_FILE_TYPES || [];
 
     const fileExtension = `.${file.name.split(".").pop().toLowerCase()}`;
     if (!allowedTypes.includes(fileExtension)) {
