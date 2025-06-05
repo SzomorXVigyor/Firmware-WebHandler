@@ -11,7 +11,7 @@ const login = async (req, res) => {
             return res.status(400).json({ error: "Username and password are required" });
         }
 
-        const user = await storageManager.findUser(username);
+        const user = await storageManager.getUser(username);
 
         if (!user || !bcrypt.compareSync(password, user.password)) {
             return res.status(401).json({ error: "Invalid credentials" });
@@ -21,7 +21,7 @@ const login = async (req, res) => {
             {
                 id: user.id,
                 username: user.username,
-                role: user.role || "user",
+                role: user.role || "bot",
             },
             config.JWT_SECRET,
             { expiresIn: "24h" },
@@ -32,7 +32,7 @@ const login = async (req, res) => {
             user: {
                 id: user.id,
                 username: user.username,
-                role: user.role || "user",
+                role: user.role || "bot",
             },
         });
     } catch (error) {

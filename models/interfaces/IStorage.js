@@ -70,15 +70,6 @@ class IStorage {
     }
 
     /**
-	 * Find user by username
-	 * @param {string} username - Username to search for
-	 * @returns {Promise<Object|null>} User object or null if not found
-	 */
-    async findUser(username) {
-        throw new Error("Method 'findUser' must be implemented");
-    }
-
-    /**
 	 * Get firmware by ID
 	 * @param {string} id - Firmware ID
 	 * @returns {Promise<Object|null>} Firmware object or null if not found
@@ -104,15 +95,6 @@ class IStorage {
 	 */
     async deleteFirmware(id) {
         throw new Error("Method 'deleteFirmware' must be implemented");
-    }
-
-    /**
-	 * Add or update user
-	 * @param {Object} user - User object
-	 * @returns {Promise<Object>} Saved user object
-	 */
-    async saveUser(user) {
-        throw new Error("Method 'saveUser' must be implemented");
     }
 
     /**
@@ -161,6 +143,41 @@ class IStorage {
 	 */
     async setAnalytics(key, value) {
         throw new Error("Method 'setAnalytics' must be implemented");
+    }
+
+    /**
+	 * Find user by username
+	 * @param {string} username - Username to search for
+	 * @returns {Promise<Object|null>} User object or null if not found
+	 */
+    async getUser(username) {
+        throw new Error("Method 'findUser' must be implemented");
+    }
+
+    /**
+     * Get all users
+     * @returns {Promise<Array>} Array of user objects
+     */
+    async getAllUsers() {
+        throw new Error("Method 'getAllUsers' must be implemented");
+    }
+
+    /**
+	 * Add or update user
+	 * @param {Object} user - User object
+	 * @returns {Promise<Object>} Saved user object
+	 */
+    async saveUser(user) {
+        throw new Error("Method 'saveUser' must be implemented");
+    }
+
+    /**
+     * Delete user
+     * @param {string} username - Username to delete
+     * @returns {Promise<boolean>} Success status
+     */
+    async deleteUser(username) {
+        throw new Error("Method 'deleteUser' must be implemented");
     }
 
     /**

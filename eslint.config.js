@@ -154,6 +154,7 @@ module.exports = [
                 ConfigManager: "readonly",
                 GLOBAL_CONFIG: "readonly",
                 AbortController: "readonly",
+                handleAuthError: "readonly",
             },
         },
     },

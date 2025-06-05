@@ -31,7 +31,7 @@ module.exports = {
     ALLOWED_FILE_TYPES: (process.env.ALLOWED_FILE_TYPES || ".bin,.hex,.elf,.ino,.cpp,.c,.h").split(",").map((type) => type.trim()),
 
     // Security
-    BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS) || 12,
+    BCRYPT_SALT_ROUNDS: parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12,
 
     // CORS configuration
     ALLOWED_ORIGINS: process.env.CORS_ORIGIN && process.env.CORS_ORIGIN.trim() !== "" ? process.env.CORS_ORIGIN.split(",").map((type) => type.trim()) : false,

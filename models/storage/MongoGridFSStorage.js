@@ -379,22 +379,6 @@ class MongoDBStorage extends IStorage {
     }
 
     /**
-	 * Find user by username
-	 * This method retrieves a user document by their username.
-	 * @param {string} username - Username to search for
-	 * @return {Promise<Object|null>} User object or null if not found
-	 * @throws {Error} If retrieval fails
-	 */
-    async findUser(username) {
-        try {
-            return await this.usersCollection.findOne({ username });
-        } catch (error) {
-            console.error("Error finding user:", error);
-            throw error;
-        }
-    }
-
-    /**
 	 * Get firmware by ID
 	 * This method retrieves a firmware document by its unique ID.
 	 * @param {string} id - Firmware ID
@@ -536,32 +520,6 @@ class MongoDBStorage extends IStorage {
             return success;
         } catch (error) {
             console.error("Error deleting firmware without transaction:", error);
-            throw error;
-        }
-    }
-
-    /**
-	 * Add or update user
-	 * This method saves a user document in the users collection.
-	 * If the user already exists, it updates the document;
-	 * otherwise, it creates a new one.
-	 * @param {Object} user - User object containing username and other details
-	 * @return {Promise<Object>} Saved user object with generated ID
-	 * @throws {Error} If saving user fails
-	 */
-    async saveUser(user) {
-        try {
-            const userDoc = {
-                ...user,
-                id: user.id || uuidv4(),
-                createdAt: user.createdAt || new Date(),
-            };
-
-            const result = await this.usersCollection.findOneAndReplace({ username: userDoc.username }, userDoc, { upsert: true, returnDocument: "after" });
-
-            return result.value;
-        } catch (error) {
-            console.error("Error saving user:", error);
             throw error;
         }
     }
@@ -727,6 +685,89 @@ class MongoDBStorage extends IStorage {
             await this.analyticsCollection.findOneAndReplace({ key }, { key, value, updatedAt: new Date() }, { upsert: true });
         } catch (error) {
             console.error("Error setting analytics:", error);
+            throw error;
+        }
+    }
+
+    /**
+	 * Find user by username
+	 * This method retrieves a user document by their username.
+	 * @param {string} username - Username to search for
+	 * @return {Promise<Object|null>} User object or null if not found
+	 * @throws {Error} If retrieval fails
+	 */
+    async getUser(username) {
+        try {
+            return await this.usersCollection.findOne({ username });
+        } catch (error) {
+            console.error("Error finding user:", error);
+            throw error;
+        }
+    }
+
+    /**
+    * Get all users
+    * This method retrieves all user records from the data.
+    * @return {Promise<Array>} Array of user objects
+    * @throws {Error} If there is an error retrieving the data
+    */
+    async getAllUsers() {
+        try {
+            return await this.usersCollection.find({}).toArray();
+        } catch (error) {
+            console.error("Error getting all users:", error);
+            throw error;
+        }
+    }
+
+    /**
+	 * Add or update user
+	 * This method saves a user document in the users collection.
+	 * If the user already exists, it updates the document;
+	 * otherwise, it creates a new one.
+	 * @param {Object} user - User object containing username and other details
+	 * @return {Promise<Object>} Saved user object with generated ID
+	 * @throws {Error} If saving user fails
+	 */
+    async saveUser(user) {
+        try {
+            const { id, createdAt, ...userData } = user;
+
+            const result = await this.usersCollection.findOneAndUpdate(
+                { username: user.username },
+                {
+                    $set: userData,
+                    $setOnInsert: {
+                        id: id || uuidv4(),
+                        createdAt: createdAt || new Date()
+                    }
+                },
+                {
+                    upsert: true,
+                    returnDocument: "after"
+                }
+            )
+            return result;
+        } catch (error) {
+            console.error("Error saving user:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete user by username
+     * This method removes a user from the data by their username.
+     * @param {string} username - Username of the user to delete
+     * @return {Promise<boolean>} True if deletion was successful, otherwise false
+     * @throws {Error} If there is an error deleting the user
+     */
+    async deleteUser(username) {
+        try {
+            const deleted = await this.usersCollection.deleteOne({ username });
+            console.log(deleted);
+            return deleted.deletedCount > 0;
+        } catch (error) {
+            console.error("Error deleting user:", error);
             throw error;
         }
     }

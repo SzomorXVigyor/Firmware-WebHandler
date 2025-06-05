@@ -42,5 +42,9 @@
 	"engines": {
 		"node": ">=16.0.0",
 		"yarn": ">=1.22.0"
-	}
+	},
+    "nodemonConfig": {
+    "ignore": ["data/**", "public/**"],
+    "delay": 2500
+  }
 }

@@ -7,5 +7,6 @@ router.get("/", views.renderHomePage);
 router.get("/firmwares", views.renderFirmwaresPage);
 router.get("/statistics", views.renderStatisticsPage);
 router.get("/upload", views.renderUploadPage);
+router.get("/user", views.renderUserPage);
 
 module.exports = router;

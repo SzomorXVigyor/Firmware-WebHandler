@@ -1,15 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Check authentication
+    if (!authToken) {
+        window.location.href = "/";
+        return;
+    }
     setupEventListeners();
     ConfigManager.onReady(() => setSupportedFormats());
     loadRecentUploads();
     setupDeviceTypeAutocomplete();
-
-    // Check authentication
-    if (!authToken) {
-        showAlert("Authentication required", "warning");
-        window.location.href = "/";
-        return;
-    }
 });
 
 function setupEventListeners() {
@@ -218,6 +216,8 @@ async function uploadFirmware(e) {
 
             // Refresh device types list to include any new device type
             setupDeviceTypeAutocomplete();
+        } else if (response.status === 401 || response.status === 403) {
+            handleAuthError();
         } else {
             showAlert(data.error || "Upload failed", "danger");
         }

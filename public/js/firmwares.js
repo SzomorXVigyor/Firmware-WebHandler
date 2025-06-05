@@ -281,10 +281,10 @@ function createFirmwareRow(firmware) {
                     <a href="/api/firmware/${firmware.id}/download" class="btn btn-outline-primary btn-sm px-3" title="Download">
                         <i class="fas fa-download"></i>
                     </a>
-                    <button class="btn btn-outline-warning btn-sm px-2 admin-only" style="display: none;" onclick="editFirmware('${firmware.id}')" title="Edit">
+                    <button class="btn btn-outline-warning btn-sm px-2 user-only" style="display: none;" onclick="editFirmware('${firmware.id}')" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-outline-danger btn-sm px-2 admin-only" style="display: none;" onclick="deleteFirmware('${firmware.id}')" title="Delete">
+                    <button class="btn btn-outline-danger btn-sm px-2 user-only" style="display: none;" onclick="deleteFirmware('${firmware.id}')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                     <button class="btn btn-outline-info btn-sm px-3" onclick="viewFirmwareDetails('${firmware.id}')" title="View Details">
@@ -323,10 +323,10 @@ function createFirmwareCard(firmware) {
                                 <a href="/api/firmware/${firmware.id}/download" class="btn btn-outline-primary btn-sm px-3" title="Download">
                                     <i class="fas fa-download"></i>
                                 </a>
-                                <button class="btn btn-outline-warning btn-sm px-2 admin-only" style="display: none;" onclick="editFirmware('${firmware.id}')" title="Edit">
+                                <button class="btn btn-outline-warning btn-sm px-2 user-only" style="display: none;" onclick="editFirmware('${firmware.id}')" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-outline-danger btn-sm px-2 admin-only" style="display: none;" onclick="deleteFirmware('${firmware.id}')" title="Delete">
+                                <button class="btn btn-outline-danger btn-sm px-2 user-only" style="display: none;" onclick="deleteFirmware('${firmware.id}')" title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
                                 <button class="btn btn-outline-info btn-sm px-3" onclick="viewFirmwareDetails('${firmware.id}')" title="View Details">

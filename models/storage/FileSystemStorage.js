@@ -194,17 +194,6 @@ class FileSystemStorage extends IStorage {
     }
 
     /**
-	 * Find user by username
-	 * This method searches for a user in the data by their username.
-	 * @param {string} username - Username to search for
-	 * @return {Promise<Object|null>} User object if found, otherwise null
-	 * @throws {Error} If there is an error retrieving the data
-	 */
-    async findUser(username) {
-        return this.data.users.find((u) => u.username === username);
-    }
-
-    /**
 	 * Get firmware by ID
 	 * This method retrieves a firmware record by its unique ID.
 	 * @param {string} id - Firmware ID to search for
@@ -263,38 +252,6 @@ class FileSystemStorage extends IStorage {
         } catch (error) {
             console.error("Error deleting firmware:", error);
             return false;
-        }
-    }
-
-    /**
-	 * Add or update user
-	 * This method saves a user object to the data.
-	 * If the user already exists, it updates their information;
-	 * otherwise, it creates a new user with a unique ID.
-	 * @param {Object} user - User object containing username, password, role, etc.
-	 * @return {Promise<Object>} Saved user object with ID and timestamps
-	 * @throws {Error} If there is an error saving the user
-	 */
-    async saveUser(user) {
-        try {
-            const existingIndex = this.data.users.findIndex((u) => u.username === user.username);
-            const userData = {
-                ...user,
-                updatedAt: new Date().toISOString(),
-            };
-
-            if (existingIndex >= 0) {
-                this.data.users[existingIndex] = userData;
-            } else {
-                userData.id = uuidv4();
-                userData.createdAt = new Date().toISOString();
-                this.data.users.push(userData);
-            }
-            await this.saveData();
-            return userData;
-        } catch (error) {
-            console.error("Error saving user:", error);
-            throw error;
         }
     }
 
@@ -414,6 +371,89 @@ class FileSystemStorage extends IStorage {
         } catch (error) {
             console.error("Error setting analytics:", error);
             throw error;
+        }
+    }
+
+
+    /**
+	 * Find user by username
+	 * This method searches for a user in the data by their username.
+	 * @param {string} username - Username to search for
+	 * @return {Promise<Object|null>} User object if found, otherwise null
+	 * @throws {Error} If there is an error retrieving the data
+	 */
+    async getUser(username) {
+        return this.data.users.find((u) => u.username === username);
+    }
+
+    /**
+    * Get all users
+    * This method retrieves all user records from the data.
+    * @return {Promise<Array>} Array of user objects
+    * @throws {Error} If there is an error retrieving the data
+    */
+    async getAllUsers() {
+        try {
+            return this.data.users;
+        } catch (error) {
+            console.error("Error getting all users:", error);
+            throw error;
+        }
+    }
+
+    /**
+	 * Add or update user
+	 * This method saves a user object to the data.
+	 * If the user already exists, it updates their information;
+	 * otherwise, it creates a new user with a unique ID.
+	 * @param {Object} user - User object containing username, password, role, etc.
+	 * @return {Promise<Object>} Saved user object with ID and timestamps
+	 * @throws {Error} If there is an error saving the user
+	 */
+    async saveUser(user) {
+        try {
+            const existingIndex = this.data.users.findIndex((u) => u.username === user.username);
+            const userData = {
+                ...user,
+                updatedAt: new Date().toISOString(),
+            };
+
+            if (existingIndex >= 0) {
+                this.data.users[existingIndex] = {
+                    ...this.data.users[existingIndex],
+                    ...userData
+                };
+            } else {
+                userData.id = uuidv4();
+                userData.createdAt = new Date().toISOString();
+                this.data.users.push(userData);
+            }
+            await this.saveData();
+            return userData;
+        } catch (error) {
+            console.error("Error saving user:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete user by username
+     * This method removes a user from the data by their username.
+     * @param {string} username - Username of the user to delete
+     * @return {Promise<boolean>} True if deletion was successful, otherwise false
+     * @throws {Error} If there is an error deleting the user
+     */
+    async deleteUser(username) {
+        try {
+            const index = this.data.users.findIndex((u) => u.username === username);
+            if (index === -1) return false;
+
+            this.data.users.splice(index, 1);
+            await this.saveData();
+            return true;
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            return false;
         }
     }
 

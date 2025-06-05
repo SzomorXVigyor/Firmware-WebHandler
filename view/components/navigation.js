@@ -8,8 +8,8 @@ const generateNavigation = (activePage = "") => {
         { href: "/", icon: "fas fa-home", text: "Home", key: "home" },
         { href: "/firmwares", icon: "fas fa-microchip", text: "Firmwares", key: "firmwares" },
         { href: "/statistics", icon: "fas fa-chart-bar", text: "Statistics", key: "statistics" },
-        { href: "/upload", icon: "fas fa-upload", text: "Upload", key: "upload", id: "uploadNavItem", class: "admin-only" },
-        { href: "/user", icon: "fas fa-user", text: "Users", key: "user", id: "userNavItem", class: "admin-only" },
+        { href: "/upload", icon: "fas fa-upload", text: "Upload", key: "upload", id: "uploadNavItem", class: "user-only" },
+        { href: "/user", icon: "fas fa-user", text: "Users", key: "user", id: "userNavItem", class: "user-only" },
     ];
 
     const navItemsHtml = navItems

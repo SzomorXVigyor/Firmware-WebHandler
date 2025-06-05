@@ -62,11 +62,6 @@ class StorageManager {
         return await this.storage.getDeviceTypes();
     }
 
-    async findUser(username) {
-        await this.ensureInitialized();
-        return await this.storage.findUser(username);
-    }
-
     async getFirmwareById(id) {
         await this.ensureInitialized();
         return await this.storage.getFirmwareById(id);
@@ -80,11 +75,6 @@ class StorageManager {
     async deleteFirmware(id) {
         await this.ensureInitialized();
         return await this.storage.deleteFirmware(id);
-    }
-
-    async saveUser(user) {
-        await this.ensureInitialized();
-        return await this.storage.saveUser(user);
     }
 
     async searchFirmwares(query, options = {}) {
@@ -110,6 +100,26 @@ class StorageManager {
     async setAnalytics(key, value) {
         await this.ensureInitialized();
         return await this.storage.setAnalytics(key, value);
+    }
+
+    async getUser(username) {
+        await this.ensureInitialized();
+        return await this.storage.getUser(username);
+    }
+
+    async getAllUsers() {
+        await this.ensureInitialized();
+        return await this.storage.getAllUsers();
+    }
+
+    async saveUser(user) {
+        await this.ensureInitialized();
+        return await this.storage.saveUser(user);
+    }
+
+    async deleteUser(username) {
+        await this.ensureInitialized();
+        return await this.storage.deleteUser(username);
     }
 
     async close() {
