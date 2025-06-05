@@ -1,12 +1,12 @@
 const { Pool } = require("pg");
 const { v4: uuidv4 } = require("uuid");
-const IFirmwareStorage = require("../interfaces/IFirmwareStorage");
+const IStorage = require("../interfaces/IStorage");
 
 /**
  * PostgreSQL storage implementation
  * Stores firmware metadata in PostgreSQL tables and files as bytea or file references
  */
-class PostgreSQLStorage extends IFirmwareStorage {
+class PostgreSQLStorage extends IStorage {
     constructor(config) {
         super();
     }

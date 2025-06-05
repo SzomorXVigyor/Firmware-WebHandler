@@ -3,12 +3,12 @@ const fsSync = require("fs");
 const path = require("path");
 const semver = require("semver");
 const { v4: uuidv4 } = require("uuid");
-const IFirmwareStorage = require("../interfaces/IFirmwareStorage");
+const IStorage = require("../interfaces/IStorage");
 
 /**
  * File system based storage implementation
  */
-class FileSystemStorage extends IFirmwareStorage {
+class FileSystemStorage extends IStorage {
     constructor(config) {
         super();
         this.analyticsFile = config.ANALYTICS || "./data/analytics.json";

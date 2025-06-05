@@ -4,6 +4,7 @@ const upload = require("../middleware/upload");
 const { authenticateToken } = require("../middleware/auth");
 const authController = require("../controllers/authController");
 const firmwareController = require("../controllers/firmwareController");
+const systemController = require("../controllers/systemController");
 
 // Public routes
 router.get("/devices", firmwareController.getDevices);
@@ -11,7 +12,7 @@ router.get("/firmwares", firmwareController.getFirmwares);
 router.get("/firmware/:id", firmwareController.getFirmwareById);
 router.get("/firmware/:id/download", firmwareController.downloadFirmware);
 router.get("/firmwares/stats", firmwareController.getFirmwareStats);
-router.get("/health", firmwareController.healthCheck);
+router.get("/health", systemController.healthCheck);
 
 // Authentication
 router.post("/login", authController.login);

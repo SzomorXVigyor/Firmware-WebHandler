@@ -89,9 +89,7 @@ function showDeviceTypeDropdown() {
     if (deviceTypes.length === 0) return;
 
     // Filter based on current input value
-    const filteredTypes = deviceTypes.filter(type =>
-        type.toLowerCase().includes(input.value.toLowerCase())
-    );
+    const filteredTypes = deviceTypes.filter((type) => type.toLowerCase().includes(input.value.toLowerCase()));
 
     renderDeviceTypeDropdown(filteredTypes);
     dropdown.style.display = "block";
@@ -110,9 +108,7 @@ function filterDeviceTypes() {
 
     if (!isDropdownVisible) return;
 
-    const filteredTypes = deviceTypes.filter(type =>
-        type.toLowerCase().includes(input.value.toLowerCase())
-    );
+    const filteredTypes = deviceTypes.filter((type) => type.toLowerCase().includes(input.value.toLowerCase()));
 
     renderDeviceTypeDropdown(filteredTypes);
 
@@ -141,15 +137,19 @@ function renderDeviceTypeDropdown(types) {
         return;
     }
 
-    dropdown.innerHTML = types.map(type => `
+    dropdown.innerHTML = types
+        .map(
+            (type) => `
         <button type="button" class="dropdown-item d-flex align-items-center" data-value="${type}">
             <i class="fas fa-microchip me-2 text-primary"></i>
             ${highlightMatch(type, input.value)}
         </button>
-    `).join("");
+    `,
+        )
+        .join("");
 
     // Add click event listeners to dropdown items
-    dropdown.querySelectorAll(".dropdown-item").forEach(item => {
+    dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
         item.addEventListener("click", (e) => {
             const value = e.currentTarget.getAttribute("data-value");
             input.value = value;
@@ -162,7 +162,7 @@ function renderDeviceTypeDropdown(types) {
 function highlightMatch(text, searchTerm) {
     if (!searchTerm) return text;
 
-    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    const regex = new RegExp(`(${searchTerm})`, "gi");
     return text.replace(regex, '<span class="text-primary fw-bold">$1</span>');
 }
 
@@ -270,7 +270,9 @@ function displayRecentUploads(firmwares) {
 
     container.innerHTML = `
         <div class="list-group">
-            ${recentFirmwares.map((firmware) => `
+            ${recentFirmwares
+        .map(
+            (firmware) => `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
                         <div class="fw-bold">${firmware.deviceType}</div>
@@ -281,7 +283,8 @@ function displayRecentUploads(firmwares) {
                         <small class="text-muted">${formatFileSize(firmware.size)}</small>
                     </div>
                 </div>
-            `)
+            `,
+        )
         .join("")}
         </div>
     `;

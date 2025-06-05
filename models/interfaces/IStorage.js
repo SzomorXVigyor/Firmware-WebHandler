@@ -2,9 +2,9 @@
  * Interface for firmware storage implementations
  * Defines the contract that all storage providers must implement
  */
-class IFirmwareStorage {
+class IStorage {
     constructor() {
-        if (this.constructor === IFirmwareStorage) {
+        if (this.constructor === IStorage) {
             throw new Error("Cannot instantiate interface directly");
         }
     }
@@ -172,4 +172,4 @@ class IFirmwareStorage {
     }
 }
 
-module.exports = IFirmwareStorage;
+module.exports = IStorage;

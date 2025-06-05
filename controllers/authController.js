@@ -1,17 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const FirmwareManager = require("../models/FirmwareManager");
 const config = require("../config/config");
-
-// Initialize firmware manager for auth routes
-let firmwareManager = null;
-async function getFirmwareManager() {
-    if (!firmwareManager) {
-        firmwareManager = new FirmwareManager(config);
-        await firmwareManager.initialize();
-    }
-    return firmwareManager;
-}
+const storageManager = require("../models/StorageManager");
 
 const login = async (req, res) => {
     try {
@@ -21,8 +11,7 @@ const login = async (req, res) => {
             return res.status(400).json({ error: "Username and password are required" });
         }
 
-        const manager = await getFirmwareManager();
-        const user = await manager.findUser(username);
+        const user = await storageManager.findUser(username);
 
         if (!user || !bcrypt.compareSync(password, user.password)) {
             return res.status(401).json({ error: "Invalid credentials" });

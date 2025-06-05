@@ -1,24 +1,11 @@
 const crypto = require("crypto");
 const semver = require("semver");
-const FirmwareManager = require("../models/FirmwareManager");
-
-// Create global firmware manager instance
 const config = require("../config/config");
-let firmwareManager = null;
-
-// Initialize firmware manager
-async function initializeFirmwareManager() {
-    if (!firmwareManager) {
-        firmwareManager = new FirmwareManager(config);
-        await firmwareManager.initialize();
-    }
-    return firmwareManager;
-}
+const storageManager = require("../models/StorageManager");
 
 const getDevices = async (req, res) => {
     try {
-        const manager = await initializeFirmwareManager();
-        const devices = await manager.getDeviceTypes();
+        const devices = await storageManager.getDeviceTypes();
         res.json(devices);
     } catch (error) {
         console.error("Error getting devices:", error);
@@ -28,24 +15,23 @@ const getDevices = async (req, res) => {
 
 const getFirmwares = async (req, res) => {
     try {
-        const manager = await initializeFirmwareManager();
         const { device, search, number, stable, minimal } = req.query;
 
         // Create options object for filtering
         const options = {
             limit: number ? parseInt(number, 10) : null,
-            onlyStable: stable === 'true' || stable === '1' || stable === 'on',
-            minimal: minimal === 'true' || minimal === '1' || minimal === 'on',
+            onlyStable: stable === "true" || stable === "1" || stable === "on",
+            minimal: minimal === "true" || minimal === "1" || minimal === "on",
         };
 
         let firmwares;
 
         if (search) {
-            firmwares = await manager.searchFirmwares(search, options);
+            firmwares = await storageManager.searchFirmwares(search, options);
         } else if (device) {
-            firmwares = await manager.getFirmwaresByDevice(device, options);
+            firmwares = await storageManager.getFirmwaresByDevice(device, options);
         } else {
-            firmwares = await manager.getAllFirmwares(options);
+            firmwares = await storageManager.getAllFirmwares(options);
         }
 
         res.json(firmwares);
@@ -57,8 +43,7 @@ const getFirmwares = async (req, res) => {
 
 const getFirmwareById = async (req, res) => {
     try {
-        const manager = await initializeFirmwareManager();
-        const firmware = await manager.getFirmwareById(req.params.id);
+        const firmware = await storageManager.getFirmwareById(req.params.id);
         if (!firmware) {
             return res.status(404).json({ error: "Firmware not found" });
         }
@@ -71,15 +56,14 @@ const getFirmwareById = async (req, res) => {
 
 const downloadFirmware = async (req, res) => {
     try {
-        const manager = await initializeFirmwareManager();
         const { id } = req.params;
 
-        const firmware = await manager.getFirmwareById(id);
+        const firmware = await storageManager.getFirmwareById(id);
         if (!firmware) {
             return res.status(404).json({ error: "Firmware not found" });
         }
 
-        const fileBuffer = await manager.getFirmwareFile(firmware.fileId);
+        const fileBuffer = await storageManager.getFirmwareFile(firmware.fileId);
 
         // Set appropriate headers
         res.setHeader("Content-Type", "application/octet-stream");
@@ -89,22 +73,16 @@ const downloadFirmware = async (req, res) => {
         res.send(fileBuffer);
 
         // Increment download count in analytics
-        const totalDownloads = (await manager.getAnalytics("totalDownloads")) || 0;
-        manager.setAnalytics("totalDownloads", totalDownloads + 1);
+        const totalDownloads = (await storageManager.getAnalytics("totalDownloads")) || 0;
+        storageManager.setAnalytics("totalDownloads", totalDownloads + 1);
     } catch (error) {
         console.error("Error downloading firmware:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
 
-const calculateSHA1 = (buffer) => {
-    return crypto.createHash("sha1").update(buffer).digest("hex");
-};
-
 const uploadFirmware = async (req, res) => {
     try {
-        const manager = await initializeFirmwareManager();
-
         if (!req.file) {
             return res.status(400).json({ error: `No file uploaded. Supported formats: ${config.ALLOWED_FILE_TYPES}` });
         }
@@ -120,7 +98,7 @@ const uploadFirmware = async (req, res) => {
         }
 
         // Check if version already exists for this device
-        const existingFirmwares = await manager.getFirmwaresByDevice(deviceType);
+        const existingFirmwares = await storageManager.getFirmwaresByDevice(deviceType);
         const existingFirmware = existingFirmwares.find((f) => f.version === version);
 
         if (existingFirmware) {
@@ -142,7 +120,7 @@ const uploadFirmware = async (req, res) => {
             mimetype: req.file.mimetype,
         };
 
-        const savedFirmware = await manager.addFirmware(firmware, fileBuffer);
+        const savedFirmware = await storageManager.addFirmware(firmware, fileBuffer);
         res.json(savedFirmware);
     } catch (error) {
         console.error("Error uploading firmware:", error);
@@ -152,8 +130,7 @@ const uploadFirmware = async (req, res) => {
 
 const deleteFirmware = async (req, res) => {
     try {
-        const manager = await initializeFirmwareManager();
-        const success = await manager.deleteFirmware(req.params.id);
+        const success = await storageManager.deleteFirmware(req.params.id);
 
         if (success) {
             res.json({ message: "Firmware deleted successfully" });
@@ -168,7 +145,6 @@ const deleteFirmware = async (req, res) => {
 
 const updateFirmware = async (req, res) => {
     try {
-        const manager = await initializeFirmwareManager();
         const { version, description } = req.body;
 
         if (!version || !description) {
@@ -179,7 +155,7 @@ const updateFirmware = async (req, res) => {
             return res.status(400).json({ error: "Invalid version format. Must follow semantic versioning (e.g., 1.0.0)" });
         }
 
-        const updatedFirmware = await manager.updateFirmware(req.params.id, {
+        const updatedFirmware = await storageManager.updateFirmware(req.params.id, {
             version,
             description,
             updatedBy: req.user.username,
@@ -198,8 +174,7 @@ const updateFirmware = async (req, res) => {
 
 const getFirmwareStats = async (req, res) => {
     try {
-        const manager = await initializeFirmwareManager();
-        const stats = await manager.getFirmwareStats();
+        const stats = await storageManager.getFirmwareStats();
         res.json(stats);
     } catch (error) {
         console.error("Error getting firmware stats:", error);
@@ -207,35 +182,23 @@ const getFirmwareStats = async (req, res) => {
     }
 };
 
-const healthCheck = async (req, res) => {
-    try {
-        const manager = await initializeFirmwareManager();
-        const health = await manager.healthCheck();
-
-        const statusCode = health.status === "healthy" ? 200 : 503;
-        res.status(statusCode).json(health);
-    } catch (error) {
-        console.error("Error performing health check:", error);
-        res.status(503).json({
-            status: "unhealthy",
-            error: error.message,
-        });
-    }
+const calculateSHA1 = (buffer) => {
+    return crypto.createHash("sha1").update(buffer).digest("hex");
 };
 
 // Graceful shutdown handler
 process.on("SIGTERM", async () => {
-    if (firmwareManager) {
-        console.log("Closing firmware manager...");
-        await firmwareManager.close();
+    if (storageManager) {
+        console.log("Closing Storage Manager...");
+        await storageManager.close();
     }
     process.exit(0);
 });
 
 process.on("SIGINT", async () => {
-    if (firmwareManager) {
-        console.log("Closing firmware manager...");
-        await firmwareManager.close();
+    if (storageManager) {
+        console.log("Closing Storage Manager...");
+        await storageManager.close();
     }
     process.exit(0);
 });
@@ -249,5 +212,4 @@ module.exports = {
     deleteFirmware,
     updateFirmware,
     getFirmwareStats,
-    healthCheck,
 };

@@ -5,23 +5,23 @@ const PostgreSQLStorage = require("./storage/PostgreSQLStorage");
 /**
  * Factory for creating appropriate storage instances based on configuration
  */
-class FirmwareManagerFactory {
+class StorageManagerFactory {
     static create(config) {
         const storageType = (config.STORAGE_TYPE || "filesystem").toLowerCase();
-        
+
         console.log(`Initializing ${storageType} storage...`);
-        
+
         switch (storageType) {
             case "mongodb":
             case "mongo":
             case "gridfs":
                 return new MongoGridFSStorage(config);
-            
+
             case "postgresql":
             case "postgres":
             case "pg":
                 return new PostgreSQLStorage(config);
-            
+
             case "filesystem":
             case "file":
             case "json":
@@ -36,7 +36,7 @@ class FirmwareManagerFactory {
 
     static validateConfig(config) {
         const storageType = (config.STORAGE_TYPE || "filesystem").toLowerCase();
-        
+
         switch (storageType) {
             case "mongodb":
             case "mongo":
@@ -45,7 +45,7 @@ class FirmwareManagerFactory {
                     throw new Error("MONGODB_URI is required for MongoDB storage");
                 }
                 break;
-            
+
             case "postgresql":
             case "postgres":
             case "pg":
@@ -53,23 +53,23 @@ class FirmwareManagerFactory {
                     throw new Error("POSTGRESQL_URI is required for PostgreSQL storage");
                 }
                 break;
-            
+
             case "filesystem":
             case "file":
             case "json":
                 // Filesystem storage uses default paths if not specified
                 break;
-            
+
             default:
                 throw new Error(`Unsupported storage type: ${storageType}`);
         }
-        
+
         return true;
     }
 
     static getStorageInfo(storageType) {
         const type = (storageType || "filesystem").toLowerCase();
-        
+
         const storageInfo = {
             filesystem: {
                 name: "File System",
@@ -98,4 +98,4 @@ class FirmwareManagerFactory {
     }
 }
 
-module.exports = FirmwareManagerFactory;
+module.exports = StorageManagerFactory;

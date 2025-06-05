@@ -6,13 +6,13 @@
 const { MongoClient, GridFSBucket } = require("mongodb");
 const { v4: uuidv4 } = require("uuid");
 const semver = require("semver");
-const IFirmwareStorage = require("../interfaces/IFirmwareStorage");
+const IStorage = require("../interfaces/IStorage");
 
 /**
  * MongoDB implementation of firmware storage using GridFS for files
  * and regular collections for metadata and users
  */
-class MongoDBStorage extends IFirmwareStorage {
+class MongoDBStorage extends IStorage {
     constructor(config) {
         super();
         this.client = null;
@@ -567,17 +567,17 @@ class MongoDBStorage extends IFirmwareStorage {
     }
 
     /**
-     * Search firmwares using text search
-     * This method performs a text search on the firmware metadata
-     * and falls back to regex search if no results are found.
-     * @param {string} query - Search query string
-     * @param {Object} options - Filter options
-     * @param {number|null} options.limit - Maximum number of results to return
-     * @param {boolean} options.onlyStable - Whether to filter only stable versions
-     * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
-     * @return {Promise<Array>} Array of matching firmware objects
-     * @throws {Error} If search fails
-     */
+	 * Search firmwares using text search
+	 * This method performs a text search on the firmware metadata
+	 * and falls back to regex search if no results are found.
+	 * @param {string} query - Search query string
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
+	 * @return {Promise<Array>} Array of matching firmware objects
+	 * @throws {Error} If search fails
+	 */
     async searchFirmwares(query, options = {}) {
         try {
             if (!query || query.trim() === "") {
@@ -587,9 +587,7 @@ class MongoDBStorage extends IFirmwareStorage {
             let firmwares;
 
             // Use MongoDB text search
-            let textSearchQuery = this.firmwaresCollection
-                .find({ $text: { $search: query } })
-                .sort({ createdAt: -1 });
+            let textSearchQuery = this.firmwaresCollection.find({ $text: { $search: query } }).sort({ createdAt: -1 });
 
             // Apply limit at database level for efficiency, but we might need more for stable filtering
             if (options.limit && !options.onlyStable) {

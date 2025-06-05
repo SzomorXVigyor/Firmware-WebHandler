@@ -1,21 +1,27 @@
-const semver = require("semver");
-const { v4: uuidv4 } = require("uuid");
-const FirmwareManagerFactory = require("./FirmwareManagerFactory");
+/* eslint-disable no-underscore-dangle */
+const config = require("../config/config");
+const StorageManagerFactory = require("./StorageManagerFactory");
 
 /**
  * Modern FirmwareManager with pluggable storage backends
+ * Singleton implementation
  * No legacy support - clean async interface only
  */
-class FirmwareManager {
+class StorageManager {
     constructor(config = null) {
-        this.config = config || require("../config/config");
+        if (StorageManager._instance) {
+            return StorageManager._instance;
+        }
 
         // Validate configuration
-        FirmwareManagerFactory.validateConfig(this.config);
+        StorageManagerFactory.validateConfig(config);
 
         // Create storage instance
-        this.storage = FirmwareManagerFactory.create(this.config);
         this.initialized = false;
+        this.storage = StorageManagerFactory.create(config);
+        this.initialize();
+
+        StorageManager._instance = this;
     }
 
     async initialize() {
@@ -31,22 +37,11 @@ class FirmwareManager {
         }
     }
 
-    /**
-     * Add firmware with file storage
-     * @param {Object} firmware - Firmware metadata
-     * @param {Buffer} fileBuffer - Firmware file buffer
-     * @returns {Promise<Object>} Saved firmware object
-     */
     async addFirmware(firmware, fileBuffer) {
         await this.ensureInitialized();
         return await this.storage.addFirmware(firmware, fileBuffer);
     }
 
-    /**
-     * Get firmware file buffer
-     * @param {string} fileId - File identifier
-     * @returns {Promise<Buffer>} File buffer
-     */
     async getFirmwareFile(fileId) {
         await this.ensureInitialized();
         return await this.storage.getFirmwareFile(fileId);
@@ -124,13 +119,6 @@ class FirmwareManager {
         this.initialized = false;
     }
 
-    // Static method to create pre-initialized instance
-    static async create(config = null) {
-        const manager = new FirmwareManager(config);
-        await manager.initialize();
-        return manager;
-    }
-
     // Utility method to check storage type
     getStorageType() {
         return this.storage.constructor.name;
@@ -147,17 +135,19 @@ class FirmwareManager {
                 status: "healthy",
                 storageType: this.getStorageType(),
                 totalFirmwares: totalFirmwares,
-                initialized: this.initialized
+                initialized: this.initialized,
             };
         } catch (error) {
             return {
                 status: "unhealthy",
                 error: error.message,
                 storageType: this.getStorageType(),
-                initialized: this.initialized
+                initialized: this.initialized,
             };
         }
     }
 }
 
-module.exports = FirmwareManager;
+const storageManager = new StorageManager(config);
+
+module.exports = storageManager;
