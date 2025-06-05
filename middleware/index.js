@@ -8,5 +8,4 @@ module.exports = (app) => {
 
     // Static file serving
     app.use(express.static("public"));
-    app.use("/downloads", express.static(config.UPLOAD_DIR));
 };
