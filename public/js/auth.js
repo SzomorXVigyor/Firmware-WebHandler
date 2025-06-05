@@ -11,7 +11,6 @@ function updateAuthUI() {
     const loginNavItem = document.getElementById("loginNavItem");
     const logoutNavItem = document.getElementById("logoutNavItem");
     const logoutBtn = document.getElementById("logoutBtn");
-    const uploadNavItem = document.getElementById("uploadNavItem");
 
     if (authToken) {
         // Hide login button, show logout button
@@ -23,9 +22,6 @@ function updateAuthUI() {
             logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt me-1"></i>Logout (${currentUser})`;
         }
 
-        // Show upload nav item
-        if (uploadNavItem) uploadNavItem.style.display = "block";
-
         // Show admin-only elements
         const adminElements = document.querySelectorAll(".admin-only");
         adminElements.forEach((el) => (el.style.display = "block"));
@@ -33,9 +29,6 @@ function updateAuthUI() {
         // Show login button, hide logout button
         if (loginNavItem) loginNavItem.classList.remove("d-none");
         if (logoutNavItem) logoutNavItem.classList.add("d-none");
-
-        // Hide upload nav item
-        if (uploadNavItem) uploadNavItem.style.display = "none";
 
         // Hide admin-only elements
         const adminElements = document.querySelectorAll(".admin-only");

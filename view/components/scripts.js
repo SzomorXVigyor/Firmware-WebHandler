@@ -4,7 +4,7 @@
  */
 
 const generateScripts = (pageScripts = []) => {
-    const commonScripts = ["https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js", "/js/auth.js", "/js/common.js"];
+    const commonScripts = ["https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js", "/js/config.js", "/js/auth.js", "/js/common.js"];
 
     const allScripts = [...commonScripts, ...pageScripts];
 

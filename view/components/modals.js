@@ -35,7 +35,7 @@ const generateLoginModal = () => {
 };
 
 // You can add more modals here as needed
-const generateConfirmModal = (id = "confirmModal", title = "Confirm Action") => {
+const generateConfirmModal = (id = "confirmModal", title = "Confirm Action", text = "Are you sure you want to perform this action?") => {
     return `
     <!-- Confirm Modal -->
     <div class="modal fade" id="${id}" tabindex="-1">
@@ -46,7 +46,7 @@ const generateConfirmModal = (id = "confirmModal", title = "Confirm Action") => 
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p id="${id}Text">Are you sure you want to perform this action?</p>
+                    <p id="${id}Text">${text}</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

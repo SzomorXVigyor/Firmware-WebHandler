@@ -4,6 +4,7 @@
  */
 
 const { generatePageWrapper } = require("./components");
+const { generateConfirmModal } = require("./components/modals");
 
 const renderFirmwaresPage = (req, res) => {
     const content = `
@@ -127,7 +128,7 @@ const renderFirmwaresPage = (req, res) => {
     const html = generatePageWrapper(content, {
         title: "Firmware Management Server - Firmwares",
         activePage: "firmwares",
-        includeConfirmModal: true,
+        pageModals: [generateConfirmModal],
         pageScripts: ["/js/firmwares.js"],
     });
 
