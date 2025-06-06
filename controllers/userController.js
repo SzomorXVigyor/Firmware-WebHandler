@@ -5,7 +5,7 @@ const storageManager = require("../models/StorageManager");
 const getUser = async (req, res) => {
     try {
         if (!req.user || !req.user.username) {
-            return res.status(401).json({ error: "Unauthorized" });
+            throw new Error("User not authenticated");
         }
         const user = await storageManager.getUser(req.user.username);
         if (!user) {
@@ -44,10 +44,7 @@ const createUser = async (req, res) => {
         const existingUser = await storageManager.getUser(user.username);
 
         if (existingUser) {
-            // User exists — allow update only if it's the same user
-            if (!req.user || req.user.username !== user.username) {
-                return res.status(403).json({ error: "Username already taken or permission denied" });
-            }
+            return res.status(409).json({ error: "Username already taken" });
         }
 
         // Hash the password before saving
@@ -69,12 +66,16 @@ const updateUser = async (req, res) => {
         user.username = username;
 
         if (!username) {
-            return res.status(400).json({ error: "User not provided" });
+            return res.status(400).json({ error: "Username are required as a request paramter" });
         }
 
-        const updatedUser = await storageManager.saveUser(user);
-        updatedUser.password = undefined; // Remove password from response for security
-        res.json(updatedUser);
+        const result = await storageManager.saveUser(user);
+        if (result) {
+            result.password = undefined; // Remove password from response for security
+            res.json(result);
+        } else {
+            return res.status(404).json({ error: "User not found" });
+        }
     } catch (error) {
         console.error("Error updating user:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -86,7 +87,7 @@ const deleteUser = async (req, res) => {
         const { username } = req.params;
 
         if (!username) {
-            return res.status(400).json({ error: "User not provided" });
+            return res.status(400).json({ error: "Username are required as a request paramter" });
         }
 
         const result = await storageManager.deleteUser(username);

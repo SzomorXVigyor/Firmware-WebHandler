@@ -35,7 +35,11 @@ Authenticate user and receive JWT token.
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "username": "admin"
+  "user": {
+    "id": "1",
+    "username": "admin",
+    "role": "admin"
+  }
 }
 ```
 
@@ -130,6 +134,21 @@ curl http://localhost:3000/api/firmwares
 
 # Get firmwares for specific device
 curl "http://localhost:3000/api/firmwares?device=ESP32-DevKit"
+
+# Search for specific firmware
+curl "http://localhost:3000/api/firmwares?search=WiFi"
+
+# Get first 5 firmwares
+curl "http://localhost:3000/api/firmwares?number=5"
+
+# Get only stable versions
+curl "http://localhost:3000/api/firmwares?stable=true"
+
+# Get minimal response (id, version, sha1 only)
+curl "http://localhost:3000/api/firmwares?minimal=true"
+
+# Combine multiple parameters
+curl "http://localhost:3000/api/firmwares?device=ESP32-DevKit&number=3&stable=true"
 ```
 
 ---
@@ -170,18 +189,19 @@ curl http://localhost:3000/api/firmware/550e8400-e29b-41d4-a716-446655440000
 ```
 
 #### PUT `/api/firmware/{id}`
-Get specific firmware metadata by ID.
 
-*Headers:**
+**Requires authentication.**\
+Update firmware metadata.
+
+**Headers:**
 ```
 Authorization: Bearer <jwt_token>
-Content-Type: multipart/form-data
 ```
 
 **Parameters:**
 - `id`: Firmware UUID
 
-**Form Data:**
+**Request Body:**
 - `version` (string): Semantic version (e.g., "1.0.0", "2.1.3")
 - `description` (string): Description of the firmware
 
@@ -229,6 +249,14 @@ Content-Type: multipart/form-data
 }
 ```
 
+**Example:**
+```bash
+curl -X PUT http://localhost:3000/api/firmware/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"version":"2.3.0","description":"Updated firmware with security patches"}'
+```
+
 #### DELETE `/api/firmware/{id}`
 Delete specific firmware by ID.
 
@@ -247,13 +275,6 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-**Response (Error - 401):**
-```json
-{
-  "error": "Access token required"
-}
-```
-
 **Response (Error - 404):**
 ```json
 {
@@ -261,12 +282,20 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
+**Example:**
+```bash
+curl -X DELETE http://localhost:3000/api/firmware/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
 ---
 
 ### 4. Firmware Upload
 
 #### POST `/api/firmware/upload`
-Upload new firmware file. **Requires authentication.**
+
+**Requires authentication.**\
+Upload new firmware file.
 
 **Headers:**
 ```
@@ -274,7 +303,7 @@ Authorization: Bearer <jwt_token>
 Content-Type: multipart/form-data
 ```
 
-**Form Data:**
+**Request Body:**
 - `firmware` (file): The firmware file to upload
 - `deviceType` (string): Device type identifier
 - `version` (string): Semantic version (e.g., "1.0.0", "2.1.3")
@@ -314,13 +343,6 @@ Content-Type: multipart/form-data
 }
 ```
 
-**Response (Error - 401):**
-```json
-{
-  "error": "Access token required"
-}
-```
-
 **Example:**
 ```bash
 curl -X POST http://localhost:3000/api/firmware/upload \
@@ -336,7 +358,9 @@ curl -X POST http://localhost:3000/api/firmware/upload \
 ### 5. File Download
 
 #### GET `/api/firmware/{id}/download`
-Download firmware file. **No authentication required.**
+
+**No authentication required.**\
+Download firmware file.
 
 **Parameters:**
 - `id`: The id returned from firmware metadata
@@ -347,12 +371,15 @@ Download firmware file. **No authentication required.**
 **Example:**
 ```bash
 # Download firmware file
-curl -O http://localhost:3000/api/550e8400-e29b-41d4-a716-446655440002/download
+curl -O http://localhost:3000/api/firmware/550e8400-e29b-41d4-a716-446655440002/download
+
+# Download with custom filename
+curl -o my_firmware.bin http://localhost:3000/api/firmware/550e8400-e29b-41d4-a716-446655440002/download
 ```
 
 ---
 
-### 5. System health, stats and analytics
+### 6. System health, stats and analytics
 
 #### GET `/api/firmwares/stats`
 Get stats and analytics data about the system.
@@ -368,6 +395,11 @@ Get stats and analytics data about the system.
   "totalSize": 124587,
   "totalDownloads": 2
 }
+```
+
+**Example:**
+```bash
+curl http://localhost:3000/api/firmwares/stats
 ```
 
 #### GET `/api/health`
@@ -398,9 +430,268 @@ Get stats and analytics data about the system.
   "error": "Error message",
 }
 ```
+
+**Example:**
+```bash
+curl http://localhost:3000/api/health
+```
+
+---
+
+### 7. User managment
+
+#### GET `/api/user/profile`
+
+**Requires authentication.**\
+Get authenticated user profile data.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (Success - 200):**
+```json
+{
+    "id":"1",
+    "username":"admin",
+    "createdAt":"2025-05-26T18:36:23.994Z",
+    "role":"admin",
+    "lastLogin": "2025-05-26T18:37:23.994Z"
+}
+```
+
+**Response (Error - 404):**
+```json
+{
+  "error": "User not found"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:3000/api/user/profile \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### PUT `/api/user/change-password`
+
+**Requires authentication.**\
+Change logged in user password.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Request Body:**
+- `currentPassword` (string): Old password
+- `newPassword` (string): New password
+
+**Response (Success - 200):**
+```json
+{
+    "message": "Password changed successfully"
+}
+```
+
+**Response (Error - 400):**
+```json
+{
+  "error": "Old password and new password are required"
+}
+```
+
+**Response (Error - 401):**
+```json
+{
+  "error": "Invalid old password"
+}
+```
+
+**Example:**
+```bash
+curl -X PUT http://localhost:3000/api/user/change-password \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"currentPassword":"oldpass123","newPassword":"newpass456"}'
+```
+
+#### GET `/api/users`
+
+**Requires admin level authentication.**
+*Use admin roled user*\
+Get all user.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (Success - 200):**
+```json
+[
+    {
+        "id":"1",
+        "username":"admin",
+        "createdAt":"2025-05-26T18:36:23.994Z",
+        "role":"admin",
+        "lastLogin": "2025-05-26T18:37:23.994Z"
+    },
+    {
+        "id":"2",
+        "username":"notadmin",
+        "createdAt":"2025-05-26T18:36:23.994Z",
+        "role":"filemanager",
+        "lastLogin": "2025-05-26T18:37:23.994Z"
+    }
+]
+```
+
+**Example:**
+```bash
+curl http://localhost:3000/api/users \
+  -H "Authorization: Bearer YOUR_ADMIN_JWT_TOKEN"
+```
+
+#### POST `/api/user`
+
+**Requires admin level authentication.**
+*Use admin roled user*\
+Create a new user.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Request Body:**
+- `username` (string): Username
+- `password` (string): Password
+- `role` (string): Role
+
+**Response (Success - 200):**
+```json
+{
+    "username":"Newuser",
+    "createdAt":"2025-06-06T10:05:49.071Z",
+    "id":"6e0f729b-30fb-4f52-9758-6e315f50258f",
+    "role":"filemanager"
+}
+```
+
+**Response (Error - 400):**
+```json
+{
+  "error": "Username, password and role are required"
+}
+```
+
+**Response (Error - 409):**
+```json
+{
+  "error": "Username already taken."
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/api/user \
+  -H "Authorization: Bearer YOUR_ADMIN_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"newuser","password":"password123","role":"filemanager"}'
+```
+
+#### PUT `/api/user/:username`
+
+**Requires admin level authentication.**
+*Use admin roled user*\
+Edit any user.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Request Body:**
+- `role` (string): Role
+
+**Response (Success - 200):**
+```json
+{
+    "username":"Newuser",
+    "createdAt":"2025-06-06T10:05:49.071Z",
+    "id":"6e0f729b-30fb-4f52-9758-6e315f50258f",
+    "role":"filemanager"
+}
+```
+
+**Response (Error - 400):**
+```json
+{
+  "error": "Username are required as a request paramter"
+}
+```
+
+**Response (Error - 404):**
+```json
+{
+  "error": "User not found"
+}
+```
+
+**Example:**
+```bash
+curl -X PUT http://localhost:3000/api/user/newuser \
+  -H "Authorization: Bearer YOUR_ADMIN_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"role":"admin"}'
+```
+
+#### DELETE `/api/user/:username`
+
+**Requires admin level authentication.**
+*Use admin roled user*\
+Delete any user.
+
+**Headers:**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Response (Success - 200):**
+```json
+{
+    "message": "User deleted successfully"
+}
+```
+
+**Response (Error - 400):**
+```json
+{
+  "error": "Username are required as a request paramter"
+}
+```
+
+**Response (Error - 404):**
+```json
+{
+  "error": "User not found"
+}
+```
+
+**Example:**
+```bash
+curl -X DELETE http://localhost:3000/api/user/newuser \
+  -H "Authorization: Bearer YOUR_ADMIN_JWT_TOKEN"
+```
+
 ---
 
 ## Data Models
+
+> [!NOTE]
+> The object may also have other inherited or container type-dependent attributes, but these are constants
 
 ### Firmware Object
 ```json
@@ -411,21 +702,92 @@ Get stats and analytics data about the system.
   "description": "string",
   "originalName": "string (original upload filename)",
   "size": "number (bytes)",
-  "sha1": "SHA1 hash of the file",
+  "sha1": "string (SHA1 hash of the file)",
   "uploadedBy": "string (username)",
-  "mimetype": " string (mime type)",
-  "fileId": "string (legacy id)",
+  "mimetype": "string (MIME type)",
+  "fileId": "string (deprecated legacy, may disappear later)",
   "createdAt": "string (ISO 8601 datetime)",
-  "updatedBy": "string (username)",
-  "updatedAt": "string (ISO 8601 datetime)""
+  "updatedBy": "string (username, optional)",
+  "updatedAt": "string (ISO 8601 datetime, optional)"
 }
 ```
 
 ### User Object
 ```json
 {
-  "id": "string",
-  "username": "string"
+  "id": "string (UUID)",
+  "username": "string",
+  "role": "string (admin, filemanager)",
+  "createdAt": "string (ISO 8601 datetime)",
+  "lastLogin": "string (ISO 8601 datetime, optional)"
+}
+```
+
+### Login Response Object
+```json
+{
+  "token": "string (JWT token)",
+  "user": {
+    "id": "string (UUID)",
+    "username": "string",
+    "role": "string (admin, filemanager)"
+  }
+}
+```
+
+### Stats Object
+```json
+{
+  "totalFirmwares": "number",
+  "deviceTypes": "array of strings",
+  "totalSize": "number (bytes)",
+  "totalDownloads": "number"
+}
+```
+
+### Health Status Object
+```json
+{
+  "status": "string (healthy, unhealthy)",
+  "storageType": "string (optional)",
+  "totalFirmwares": "number (optional)",
+  "initialized": "boolean (optional)",
+  "error": "string (optional, present when unhealthy)"
+}
+```
+
+### Password Change Request Object
+```json
+{
+  "currentPassword": "string",
+  "newPassword": "string"
+}
+```
+
+### User Creation Request Object
+```json
+{
+  "username": "string",
+  "password": "string",
+  "role": "string (admin, filemanager, bot)"
+}
+```
+
+### Firmware Upload Request Object
+```json
+{
+  "firmware": "file (binary)",
+  "deviceType": "string",
+  "version": "string (SemVer format)",
+  "description": "string"
+}
+```
+
+### Firmware Update Request Object
+```json
+{
+  "version": "string (SemVer format)",
+  "description": "string"
 }
 ```
 
@@ -440,13 +802,38 @@ All error responses follow this format:
 }
 ```
 
+### Protected endpoint`s auth token error
+
+**Response (Error - 401):**
+```json
+{
+  "error": "Access token required"
+}
+```
+
+**Response (Error - 403):**
+```json
+{
+  "error": "Invalid token"
+}
+```
+
+**Response (Error - 403):**
+```json
+{
+  "error": "Admin access required"
+}
+```
+
 ### Common HTTP Status Codes
 - `200` - Success
 - `400` - Bad Request (invalid input, validation errors)
 - `401` - Unauthorized (missing or invalid token)
 - `403` - Forbidden (token expired)
 - `404` - Not Found (resource doesn't exist)
+- `409` - Conflict (resource already exists)
 - `500` - Internal Server Error
+- `503` - Service Unavailable (unhealthy system)
 
 ---
 
@@ -454,22 +841,22 @@ All error responses follow this format:
 
 ### Upload Limits
 - Maximum file size: **100MB** (default)
-- Supported file types: .bin, .hex, .elf, .ino, .cpp, .c, .h
+- Supported file types: .bin, .hex, .elf, .ino, .cpp, .c, .h (default)
 - No rate limiting currently implemented
 
 ### Query Limits
 - No rate limiting on GET endpoints
-- No pagination (all results returned)
+- No pagination (all results returned), but has a maximum number limiter paramter on `/api/firmwares`
 
 ---
 
 ## Security Notes
 
 1. **JWT Tokens**: Expire after 24 hours
-2. **File Storage**: Files stored with UUID names to prevent conflicts
-3. **Input Validation**: SemVer validation prevents invalid version formats
-4. **No CORS**: Configure CORS headers if accessing from browser applications
-5. **HTTPS**: Use HTTPS in production environments
+2. **Input Validation**: SemVer validation prevents invalid version formats
+3. **No CORS**: Configure CORS headers if accessing from browser applications
+4. **HTTPS**: Use HTTPS in production environments
+5. **Role-based Access**: Admin users can manage other users, filemanager users can only manage firmware
 
 ---
 

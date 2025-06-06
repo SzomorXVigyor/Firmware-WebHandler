@@ -98,38 +98,42 @@ GET /
 GET /firmwares
 GET /statistics
 GET /upload
+GET /user
 
-# Login on Backend
+# Authentication
 POST /api/login
 
-# Get all device types
+# Device Management
 GET /api/devices
 
-# Get firmwares (with optional filtering)
+# Firmware Query & Management
 GET /api/firmwares
 GET /api/firmwares?device=ESP32-DevKit
 GET /api/firmwares?search=bluetooth
-
-# Get specific firmware
+GET /api/firmwares?number=5
+GET /api/firmwares?stable=true
+GET /api/firmwares?minimal=true
 GET /api/firmware/{id}
 
-# Download firmware
+# Firmware File Operations
 GET /api/firmware/{id}/download
+POST /api/firmware/upload          # (authenticated)
+PUT /api/firmware/{id}             # (authenticated)
+DELETE /api/firmware/{id}          # (authenticated)
 
-# Upload firmware (authenticated)
-POST /api/firmware/upload
-
-# Update firmware metadata (authenticated)
-PUT /api/firmware/{id}
-
-# Delete firmware (authenticated)
-DELETE /api/firmware/{id}
-
-# Statistics
+# System Stats & Health
 GET /api/firmwares/stats
-
-# Health check
 GET /api/health
+
+# User Profile Management
+GET /api/user/profile              # (authenticated)
+PUT /api/user/change-password      # (authenticated)
+
+# User Administration
+GET /api/users                     # (admin only)
+POST /api/user                     # (admin only)
+PUT /api/user/{username}           # (admin only)
+DELETE /api/user/{username}        # (admin only)
 ```
 
 ## 📖 Usage Guide
@@ -200,17 +204,6 @@ Device types are automatically created when uploading firmware. No pre-configura
 - [ ] Configure firewall rules
 - [ ] Set up regular backups
 - [ ] Monitor disk usage for uploads
-- [ ] Configure CORS for browser access
-
-### Recommended Security Headers
-```javascript
-app.use((req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    next();
-});
-```
 
 ## 🤝 Contributing
 

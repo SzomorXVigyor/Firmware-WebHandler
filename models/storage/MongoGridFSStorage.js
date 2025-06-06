@@ -764,7 +764,6 @@ class MongoDBStorage extends IStorage {
     async deleteUser(username) {
         try {
             const deleted = await this.usersCollection.deleteOne({ username });
-            console.log(deleted);
             return deleted.deletedCount > 0;
         } catch (error) {
             console.error("Error deleting user:", error);
