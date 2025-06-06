@@ -17,6 +17,11 @@ const login = async (req, res) => {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
+        // Save last login time
+        user.lastLogin = new Date().toISOString();
+        storageManager.saveUser(user);
+
+        // Generate JWT token
         const token = jwt.sign(
             {
                 id: user.id,
