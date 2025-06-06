@@ -5,13 +5,14 @@
  */
 const { MongoClient, GridFSBucket } = require("mongodb");
 const { v4: uuidv4 } = require("uuid");
-const IFirmwareStorage = require("../interfaces/IFirmwareStorage");
+const semver = require("semver");
+const IStorage = require("../interfaces/IStorage");
 
 /**
  * MongoDB implementation of firmware storage using GridFS for files
  * and regular collections for metadata and users
  */
-class MongoDBStorage extends IFirmwareStorage {
+class MongoDBStorage extends IStorage {
     constructor(config) {
         super();
         this.client = null;
@@ -292,12 +293,33 @@ class MongoDBStorage extends IFirmwareStorage {
 	 * This method retrieves all firmwares for a specific device type,
 	 * sorted by creation date in descending order.
 	 * @param {string} deviceType - Device type to filter by
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @return {Promise<Array>} Array of firmware objects for the specified device type
 	 * @throws {Error} If retrieval fails
 	 */
-    async getFirmwaresByDevice(deviceType) {
+    async getFirmwaresByDevice(deviceType, options = {}) {
         try {
-            return await this.firmwaresCollection.find({ deviceType }).sort({ createdAt: -1 }).toArray();
+            let query = this.firmwaresCollection.find({ deviceType }).sort({ createdAt: -1 });
+
+            // Apply limit at database level for efficiency, but we might need more for stable filtering
+            if (options.limit && !options.onlyStable) {
+                query = query.limit(options.limit);
+            }
+
+            let firmwares = await query.toArray();
+
+            // Apply post-query filters (stable filtering and minimal formatting)
+            firmwares = this.applyPostQueryFilters(firmwares, options.onlyStable, options.minimal);
+
+            // Apply limit after stable filtering if needed
+            if (options.limit && options.limit > 0) {
+                firmwares = firmwares.slice(0, options.limit);
+            }
+
+            return firmwares;
         } catch (error) {
             console.error("Error getting firmwares by device:", error);
             throw error;
@@ -308,12 +330,33 @@ class MongoDBStorage extends IFirmwareStorage {
 	 * Get all firmwares
 	 * This method retrieves all firmwares in the database,
 	 * sorted by creation date in descending order.
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @return {Promise<Array>} Array of all firmware objects
 	 * @throws {Error} If retrieval fails
 	 */
-    async getAllFirmwares() {
+    async getAllFirmwares(options = {}) {
         try {
-            return await this.firmwaresCollection.find({}).sort({ createdAt: -1 }).toArray();
+            let query = this.firmwaresCollection.find({}).sort({ createdAt: -1 });
+
+            // Apply limit at database level for efficiency, but we might need more for stable filtering
+            if (options.limit && !options.onlyStable) {
+                query = query.limit(options.limit);
+            }
+
+            let firmwares = await query.toArray();
+
+            // Apply post-query filters (stable filtering and minimal formatting)
+            firmwares = this.applyPostQueryFilters(firmwares, options.onlyStable, options.minimal);
+
+            // Apply limit after stable filtering if needed
+            if (options.limit && options.limit > 0) {
+                firmwares = firmwares.slice(0, options.limit);
+            }
+
+            return firmwares;
         } catch (error) {
             console.error("Error getting all firmwares:", error);
             throw error;
@@ -331,22 +374,6 @@ class MongoDBStorage extends IFirmwareStorage {
             return await this.firmwaresCollection.distinct("deviceType");
         } catch (error) {
             console.error("Error getting device types:", error);
-            throw error;
-        }
-    }
-
-    /**
-	 * Find user by username
-	 * This method retrieves a user document by their username.
-	 * @param {string} username - Username to search for
-	 * @return {Promise<Object|null>} User object or null if not found
-	 * @throws {Error} If retrieval fails
-	 */
-    async findUser(username) {
-        try {
-            return await this.usersCollection.findOne({ username });
-        } catch (error) {
-            console.error("Error finding user:", error);
             throw error;
         }
     }
@@ -498,63 +525,63 @@ class MongoDBStorage extends IFirmwareStorage {
     }
 
     /**
-	 * Add or update user
-	 * This method saves a user document in the users collection.
-	 * If the user already exists, it updates the document;
-	 * otherwise, it creates a new one.
-	 * @param {Object} user - User object containing username and other details
-	 * @return {Promise<Object>} Saved user object with generated ID
-	 * @throws {Error} If saving user fails
-	 */
-    async saveUser(user) {
-        try {
-            const userDoc = {
-                ...user,
-                id: user.id || uuidv4(),
-                createdAt: user.createdAt || new Date(),
-            };
-
-            const result = await this.usersCollection.findOneAndReplace({ username: userDoc.username }, userDoc, { upsert: true, returnDocument: "after" });
-
-            return result.value;
-        } catch (error) {
-            console.error("Error saving user:", error);
-            throw error;
-        }
-    }
-
-    /**
 	 * Search firmwares using text search
 	 * This method performs a text search on the firmware metadata
 	 * and falls back to regex search if no results are found.
 	 * @param {string} query - Search query string
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @return {Promise<Array>} Array of matching firmware objects
 	 * @throws {Error} If search fails
 	 */
-    async searchFirmwares(query) {
+    async searchFirmwares(query, options = {}) {
         try {
             if (!query || query.trim() === "") {
-                return await this.getAllFirmwares();
+                return await this.getAllFirmwares(options);
             }
 
+            let firmwares;
+
             // Use MongoDB text search
-            const textSearchResults = await this.firmwaresCollection
-                .find({ $text: { $search: query } })
-                .sort({ createdAt: -1 })
-                .toArray();
+            let textSearchQuery = this.firmwaresCollection.find({ $text: { $search: query } }).sort({ createdAt: -1 });
+
+            // Apply limit at database level for efficiency, but we might need more for stable filtering
+            if (options.limit && !options.onlyStable) {
+                textSearchQuery = textSearchQuery.limit(options.limit);
+            }
+
+            const textSearchResults = await textSearchQuery.toArray();
 
             // If no text search results, fall back to regex search
             if (textSearchResults.length === 0) {
                 const regexQuery = new RegExp(query, "i");
-                return await this.firmwaresCollection
+                let regexSearchQuery = this.firmwaresCollection
                     .find({
                         $or: [{ deviceType: regexQuery }, { version: regexQuery }, { description: regexQuery }],
                     })
-                    .sort({ createdAt: -1 })
-                    .toArray();
+                    .sort({ createdAt: -1 });
+
+                // Apply limit at database level for efficiency, but we might need more for stable filtering
+                if (options.limit && !options.onlyStable) {
+                    regexSearchQuery = regexSearchQuery.limit(options.limit);
+                }
+
+                firmwares = await regexSearchQuery.toArray();
+            } else {
+                firmwares = textSearchResults;
             }
 
-            return textSearchResults;
+            // Apply post-query filters (stable filtering and minimal formatting)
+            firmwares = this.applyPostQueryFilters(firmwares, options.onlyStable, options.minimal);
+
+            // Apply limit after stable filtering if needed
+            if (options.limit && options.limit > 0) {
+                firmwares = firmwares.slice(0, options.limit);
+            }
+
+            return firmwares;
         } catch (error) {
             console.error("Error searching firmwares:", error);
             throw error;
@@ -663,6 +690,88 @@ class MongoDBStorage extends IFirmwareStorage {
     }
 
     /**
+	 * Find user by username
+	 * This method retrieves a user document by their username.
+	 * @param {string} username - Username to search for
+	 * @return {Promise<Object|null>} User object or null if not found
+	 * @throws {Error} If retrieval fails
+	 */
+    async getUser(username) {
+        try {
+            return await this.usersCollection.findOne({ username });
+        } catch (error) {
+            console.error("Error finding user:", error);
+            throw error;
+        }
+    }
+
+    /**
+    * Get all users
+    * This method retrieves all user records from the data.
+    * @return {Promise<Array>} Array of user objects
+    * @throws {Error} If there is an error retrieving the data
+    */
+    async getAllUsers() {
+        try {
+            return await this.usersCollection.find({}).toArray();
+        } catch (error) {
+            console.error("Error getting all users:", error);
+            throw error;
+        }
+    }
+
+    /**
+	 * Add or update user
+	 * This method saves a user document in the users collection.
+	 * If the user already exists, it updates the document;
+	 * otherwise, it creates a new one.
+	 * @param {Object} user - User object containing username and other details
+	 * @return {Promise<Object>} Saved user object with generated ID
+	 * @throws {Error} If saving user fails
+	 */
+    async saveUser(user) {
+        try {
+            const { id, createdAt, ...userData } = user;
+
+            const result = await this.usersCollection.findOneAndUpdate(
+                { username: user.username },
+                {
+                    $set: userData,
+                    $setOnInsert: {
+                        id: id || uuidv4(),
+                        createdAt: createdAt || new Date()
+                    }
+                },
+                {
+                    upsert: true,
+                    returnDocument: "after"
+                }
+            )
+            return result;
+        } catch (error) {
+            console.error("Error saving user:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete user by username
+     * This method removes a user from the data by their username.
+     * @param {string} username - Username of the user to delete
+     * @return {Promise<boolean>} True if deletion was successful, otherwise false
+     * @throws {Error} If there is an error deleting the user
+     */
+    async deleteUser(username) {
+        try {
+            const deleted = await this.usersCollection.deleteOne({ username });
+            return deleted.deletedCount > 0;
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            throw error;
+        }
+    }
+
+    /**
 	 * Close MongoDB connection
 	 * This method closes the MongoDB client connection
 	 * and cleans up resources.
@@ -681,6 +790,8 @@ class MongoDBStorage extends IFirmwareStorage {
         }
     }
 
+    /** --- Extra local helper methods --- */
+
     /**
 	 * Helper method to extract file extension
 	 * This method extracts the file extension from a filename.
@@ -692,6 +803,42 @@ class MongoDBStorage extends IFirmwareStorage {
         if (!filename) return "bin";
         const parts = filename.split(".");
         return parts.length > 1 ? parts.pop() : "bin";
+    }
+
+    /**
+	 * Helper method to apply post-query filters (stable versions) and format response
+	 * MongoDB doesn't have built-in semver support, so we filter after retrieval
+	 * @param {Array} firmwares - Array of firmware objects from database
+	 * @param {boolean} onlyStable - Whether to filter only stable versions
+	 * @param {boolean} minimal - Whether to return minimal response (id, version, sha1 only)
+	 * @return {Array} Filtered array of firmware objects
+	 */
+    applyPostQueryFilters(firmwares, onlyStable, minimal = false) {
+        let filtered = firmwares;
+
+        // Filter stable versions if requested
+        if (onlyStable) {
+            filtered = filtered.filter((fw) => {
+                try {
+                    return semver.prerelease(fw.version) === null;
+                } catch (error) {
+                    // If version is not valid semver, exclude it when filtering for stable
+                    console.warn(`Invalid semver version: ${fw.version}`);
+                    return false;
+                }
+            });
+        }
+
+        // Apply minimal formatting if requested
+        if (minimal) {
+            filtered = filtered.map((fw) => ({
+                id: fw.id,
+                version: fw.version,
+                sha1: fw.sha1,
+            }));
+        }
+
+        return filtered;
     }
 }
 

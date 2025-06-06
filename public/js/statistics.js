@@ -33,7 +33,7 @@ async function loadStatistics() {
             createDeviceTypeChart(firmwares);
             createUploadTimelineChart(firmwares);
             displayDeviceSummaryTable(firmwares);
-            displayRecentActivity(firmwares);
+            ConfigManager.onReady(() => {displayRecentActivity(firmwares)});
         }
 
         if (stats) {

@@ -2,9 +2,9 @@
  * Interface for firmware storage implementations
  * Defines the contract that all storage providers must implement
  */
-class IFirmwareStorage {
+class IStorage {
     constructor() {
-        if (this.constructor === IFirmwareStorage) {
+        if (this.constructor === IStorage) {
             throw new Error("Cannot instantiate interface directly");
         }
     }
@@ -39,17 +39,25 @@ class IFirmwareStorage {
     /**
 	 * Get firmwares filtered by device type
 	 * @param {string} deviceType - Device type to filter by
+     * @param {Object} options - Filter options
+     * @param {number|null} options.limit - Maximum number of results to return
+     * @param {boolean} options.onlyStable - Whether to filter only stable versions (no pre-release)
+     * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @returns {Promise<Array>} Array of firmware objects
 	 */
-    async getFirmwaresByDevice(deviceType) {
+    async getFirmwaresByDevice(deviceType, options = {}) {
         throw new Error("Method 'getFirmwaresByDevice' must be implemented");
     }
 
     /**
 	 * Get all firmwares
+     * @param {Object} options - Filter options
+     * @param {number|null} options.limit - Maximum number of results to return
+     * @param {boolean} options.onlyStable - Whether to filter only stable versions (no pre-release)
+     * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @returns {Promise<Array>} Array of all firmware objects
 	 */
-    async getAllFirmwares() {
+    async getAllFirmwares(options = {}) {
         throw new Error("Method 'getAllFirmwares' must be implemented");
     }
 
@@ -59,15 +67,6 @@ class IFirmwareStorage {
 	 */
     async getDeviceTypes() {
         throw new Error("Method 'getDeviceTypes' must be implemented");
-    }
-
-    /**
-	 * Find user by username
-	 * @param {string} username - Username to search for
-	 * @returns {Promise<Object|null>} User object or null if not found
-	 */
-    async findUser(username) {
-        throw new Error("Method 'findUser' must be implemented");
     }
 
     /**
@@ -99,20 +98,15 @@ class IFirmwareStorage {
     }
 
     /**
-	 * Add or update user
-	 * @param {Object} user - User object
-	 * @returns {Promise<Object>} Saved user object
-	 */
-    async saveUser(user) {
-        throw new Error("Method 'saveUser' must be implemented");
-    }
-
-    /**
 	 * Search firmwares
 	 * @param {string} query - Search query
+     * @param {Object} options - Filter options
+     * @param {number|null} options.limit - Maximum number of results to return
+     * @param {boolean} options.onlyStable - Whether to filter only stable versions (no pre-release)
+     * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @returns {Promise<Array>} Array of matching firmware objects
 	 */
-    async searchFirmwares(query) {
+    async searchFirmwares(query, options = {}) {
         throw new Error("Method 'searchFirmwares' must be implemented");
     }
 
@@ -152,6 +146,41 @@ class IFirmwareStorage {
     }
 
     /**
+	 * Find user by username
+	 * @param {string} username - Username to search for
+	 * @returns {Promise<Object|null>} User object or null if not found
+	 */
+    async getUser(username) {
+        throw new Error("Method 'findUser' must be implemented");
+    }
+
+    /**
+     * Get all users
+     * @returns {Promise<Array>} Array of user objects
+     */
+    async getAllUsers() {
+        throw new Error("Method 'getAllUsers' must be implemented");
+    }
+
+    /**
+	 * Add or update user
+	 * @param {Object} user - User object
+	 * @returns {Promise<Object>} Saved user object
+	 */
+    async saveUser(user) {
+        throw new Error("Method 'saveUser' must be implemented");
+    }
+
+    /**
+     * Delete user
+     * @param {string} username - Username to delete
+     * @returns {Promise<boolean>} Success status
+     */
+    async deleteUser(username) {
+        throw new Error("Method 'deleteUser' must be implemented");
+    }
+
+    /**
 	 * Close storage connection
 	 * @returns {Promise<void>}
 	 */
@@ -160,4 +189,4 @@ class IFirmwareStorage {
     }
 }
 
-module.exports = IFirmwareStorage;
+module.exports = IStorage;

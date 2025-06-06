@@ -133,8 +133,13 @@ function fallbackCopyToClipboard(text) {
     document.body.removeChild(textArea);
 }
 
-function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString();
+function formatDate(dateString, options = {}) {
+    try{
+        return new Date(dateString).toLocaleDateString(GLOBAL_CONFIG.LOCALE, options);
+    } catch (error) {
+        console.error("Invalid date format:", dateString, error);
+        return "Invalid Date";
+    }
 }
 
 function formatFileSize(bytes) {

@@ -4,8 +4,8 @@
  */
 
 const { generateHtmlHead } = require("./head");
-const { generateNavigation, generateUploadNavigation } = require("./navigation");
-const { generateLoginModal, generateConfirmModal } = require("./modals");
+const { generateNavigation } = require("./navigation");
+const { generateLoginModal } = require("./modals");
 const { generateFooter } = require("./footer");
 const { generateScripts } = require("./scripts");
 
@@ -17,38 +17,27 @@ const { generateScripts } = require("./scripts");
  */
 const generatePageWrapper = (content, options = {}) => {
     const {
-        title = "Firmware Management Server",
-        activePage = "",
-        isUploadPage = false,
-        pageScripts = [],
-        includeChartJs = false,
-        includeConfirmModal = false,
+        title = "Firmware Management Server",   // HTML title
+        activePage = "",                        // Active navigation page
+        includeScripts = [],                    // Additional scripts to include in header
+        pageCSS = [],                           // Additional CSS files to include in header
+        pageModals = [],                        // Array of functions returning server side rendered modals (use it for server-side data or resuable modals)
+        pageScripts = [],                       // Additional scripts to include at the end of the body
     } = options;
 
-    const navigation = isUploadPage ? generateUploadNavigation(activePage) : generateNavigation(activePage);
+    const includedModals = [generateLoginModal(), ...pageModals.map(fn => fn())].join("\n    ");
 
-    const modals = [generateLoginModal(), ...(includeConfirmModal ? [generateConfirmModal()] : [])].join("\n    ");
-
-    return `${generateHtmlHead(title, includeChartJs)}
-    ${navigation}
+    return `${generateHtmlHead(title, pageCSS, includeScripts)}
+    ${generateNavigation(activePage)}
 
     ${content}
 
-    ${modals}
+    ${includedModals}
     ${generateFooter()}
     ${generateScripts(pageScripts)}`;
 };
 
 module.exports = {
-    // Individual components
-    generateHtmlHead,
-    generateNavigation,
-    generateUploadNavigation,
-    generateLoginModal,
-    generateConfirmModal,
-    generateFooter,
-    generateScripts,
-
     // Main wrapper
     generatePageWrapper,
 };

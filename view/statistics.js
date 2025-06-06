@@ -136,7 +136,7 @@ const renderStatisticsPage = (req, res) => {
     const html = generatePageWrapper(content, {
         title: "Firmware Management Server - Statistics",
         activePage: "statistics",
-        includeChartJs: true,
+        includeScripts: ["https://cdn.jsdelivr.net/npm/chart.js"],
         pageScripts: ["/js/statistics.js"],
     });
 

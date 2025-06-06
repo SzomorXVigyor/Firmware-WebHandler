@@ -1,17 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const FirmwareManager = require("../models/FirmwareManager");
 const config = require("../config/config");
-
-// Initialize firmware manager for auth routes
-let firmwareManager = null;
-async function getFirmwareManager() {
-    if (!firmwareManager) {
-        firmwareManager = new FirmwareManager(config);
-        await firmwareManager.initialize();
-    }
-    return firmwareManager;
-}
+const storageManager = require("../models/StorageManager");
 
 const login = async (req, res) => {
     try {
@@ -21,18 +11,22 @@ const login = async (req, res) => {
             return res.status(400).json({ error: "Username and password are required" });
         }
 
-        const manager = await getFirmwareManager();
-        const user = await manager.findUser(username);
+        const user = await storageManager.getUser(username);
 
         if (!user || !bcrypt.compareSync(password, user.password)) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
+        // Save last login time
+        user.lastLogin = new Date().toISOString();
+        storageManager.saveUser(user);
+
+        // Generate JWT token
         const token = jwt.sign(
             {
                 id: user.id,
                 username: user.username,
-                role: user.role || "user",
+                role: user.role || "bot",
             },
             config.JWT_SECRET,
             { expiresIn: "24h" },
@@ -43,7 +37,7 @@ const login = async (req, res) => {
             user: {
                 id: user.id,
                 username: user.username,
-                role: user.role || "user",
+                role: user.role || "bot",
             },
         });
     } catch (error) {

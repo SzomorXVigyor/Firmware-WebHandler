@@ -7,11 +7,15 @@ if (typeof Storage !== "undefined") {
     currentUser = localStorage.getItem("currentUser");
 }
 
+function handleAuthError() {
+    logout();
+    showAlert("Session expired. Please login again.", "warning");
+}
+
 function updateAuthUI() {
     const loginNavItem = document.getElementById("loginNavItem");
     const logoutNavItem = document.getElementById("logoutNavItem");
     const logoutBtn = document.getElementById("logoutBtn");
-    const uploadNavItem = document.getElementById("uploadNavItem");
 
     if (authToken) {
         // Hide login button, show logout button
@@ -23,23 +27,17 @@ function updateAuthUI() {
             logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt me-1"></i>Logout (${currentUser})`;
         }
 
-        // Show upload nav item
-        if (uploadNavItem) uploadNavItem.style.display = "block";
-
-        // Show admin-only elements
-        const adminElements = document.querySelectorAll(".admin-only");
-        adminElements.forEach((el) => (el.style.display = "block"));
+        // Show user-only elements
+        const userElements = document.querySelectorAll(".user-only");
+        userElements.forEach((el) => (el.style.display = "block"));
     } else {
         // Show login button, hide logout button
         if (loginNavItem) loginNavItem.classList.remove("d-none");
         if (logoutNavItem) logoutNavItem.classList.add("d-none");
 
-        // Hide upload nav item
-        if (uploadNavItem) uploadNavItem.style.display = "none";
-
-        // Hide admin-only elements
-        const adminElements = document.querySelectorAll(".admin-only");
-        adminElements.forEach((el) => (el.style.display = "none"));
+        // Hide user-only elements
+        const userElements = document.querySelectorAll(".user-only");
+        userElements.forEach((el) => (el.style.display = "none"));
     }
 }
 
@@ -95,13 +93,8 @@ function logout() {
         localStorage.removeItem("currentUser");
     }
 
-    updateAuthUI();
-    showAlert("Logged out successfully", "info");
-
-    // Redirect to home if on upload page
-    if (window.location.pathname === "/upload") {
-        window.location.href = "/";
-    }
+    // Redirect to home
+    window.location.href = "/";
 }
 
 function checkAuthAndRedirect(url) {
@@ -116,11 +109,6 @@ function checkAuthAndRedirect(url) {
 // Check auth status when page loads
 document.addEventListener("DOMContentLoaded", () => {
     updateAuthUI();
-    // Redirect from upload page if not authenticated
-    if (window.location.pathname === "/upload" && !authToken) {
-        showAlert("Authentication required to access upload page", "warning");
-        window.location.href = "/";
-    }
 });
 
 // Create a network operation registry

@@ -3,12 +3,12 @@ const fsSync = require("fs");
 const path = require("path");
 const semver = require("semver");
 const { v4: uuidv4 } = require("uuid");
-const IFirmwareStorage = require("../interfaces/IFirmwareStorage");
+const IStorage = require("../interfaces/IStorage");
 
 /**
  * File system based storage implementation
  */
-class FileSystemStorage extends IFirmwareStorage {
+class FileSystemStorage extends IStorage {
     constructor(config) {
         super();
         this.analyticsFile = config.ANALYTICS || "./data/analytics.json";
@@ -151,22 +151,34 @@ class FileSystemStorage extends IFirmwareStorage {
 	 * This method retrieves all firmware records that match the specified device type,
 	 * sorted by version in descending order.
 	 * @param {string} deviceType - Device type to filter by
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @return {Promise<Array>} Array of firmware objects matching the device type
 	 * @throws {Error} If there is an error retrieving the data
 	 */
-    async getFirmwaresByDevice(deviceType) {
-        return this.data.firmwares.filter((f) => f.deviceType === deviceType).sort((a, b) => semver.rcompare(a.version, b.version));
+    async getFirmwaresByDevice(deviceType, options = {}) {
+        const firmwares = this.data.firmwares.filter((f) => f.deviceType === deviceType).sort((a, b) => semver.rcompare(a.version, b.version));
+
+        return this.applyFilters(firmwares, options);
     }
 
     /**
 	 * Get all firmwares
 	 * This method retrieves all firmware records,
 	 * sorted by upload date in descending order.
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
 	 * @return {Promise<Array>} Array of all firmware objects
 	 * @throws {Error} If there is an error retrieving the data
 	 */
-    async getAllFirmwares() {
-        return this.data.firmwares.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+    async getAllFirmwares(options = {}) {
+        const firmwares = this.data.firmwares.sort((a, b) => new Date(b.uploadDate || b.createdAt) - new Date(a.uploadDate || a.createdAt));
+
+        return this.applyFilters(firmwares, options);
     }
 
     /**
@@ -179,17 +191,6 @@ class FileSystemStorage extends IFirmwareStorage {
     async getDeviceTypes() {
         const types = [...new Set(this.data.firmwares.map((f) => f.deviceType))];
         return types.sort();
-    }
-
-    /**
-	 * Find user by username
-	 * This method searches for a user in the data by their username.
-	 * @param {string} username - Username to search for
-	 * @return {Promise<Object|null>} User object if found, otherwise null
-	 * @throws {Error} If there is an error retrieving the data
-	 */
-    async findUser(username) {
-        return this.data.users.find((u) => u.username === username);
     }
 
     /**
@@ -255,53 +256,26 @@ class FileSystemStorage extends IFirmwareStorage {
     }
 
     /**
-	 * Add or update user
-	 * This method saves a user object to the data.
-	 * If the user already exists, it updates their information;
-	 * otherwise, it creates a new user with a unique ID.
-	 * @param {Object} user - User object containing username, password, role, etc.
-	 * @return {Promise<Object>} Saved user object with ID and timestamps
-	 * @throws {Error} If there is an error saving the user
-	 */
-    async saveUser(user) {
-        try {
-            const existingIndex = this.data.users.findIndex((u) => u.username === user.username);
-            const userData = {
-                ...user,
-                updatedAt: new Date().toISOString(),
-            };
-
-            if (existingIndex >= 0) {
-                this.data.users[existingIndex] = userData;
-            } else {
-                userData.id = uuidv4();
-                userData.createdAt = new Date().toISOString();
-                this.data.users.push(userData);
-            }
-            await this.saveData();
-            return userData;
-        } catch (error) {
-            console.error("Error saving user:", error);
-            throw error;
-        }
-    }
-
-    /**
 	 * Search firmwares by query
 	 * This method searches for firmware records that match the provided query
 	 * in deviceType, description, or version fields.
 	 * @param {string} query - Search term to filter firmwares
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
 	 * @return {Promise<Array>} Array of firmware objects matching the search criteria
 	 * @throws {Error} If there is an error searching the data
 	 */
-    async searchFirmwares(query) {
+    async searchFirmwares(query, options = {}) {
         const searchTerm = query.toLowerCase();
-        return this.data.firmwares.filter(
+        const firmwares = this.data.firmwares.filter(
             (fw) =>
                 fw.deviceType.toLowerCase().includes(searchTerm) ||
 				fw.description.toLowerCase().includes(searchTerm) ||
 				fw.version.toLowerCase().includes(searchTerm),
         );
+
+        return this.applyFilters(firmwares, options);
     }
 
     /**
@@ -400,6 +374,89 @@ class FileSystemStorage extends IFirmwareStorage {
         }
     }
 
+
+    /**
+	 * Find user by username
+	 * This method searches for a user in the data by their username.
+	 * @param {string} username - Username to search for
+	 * @return {Promise<Object|null>} User object if found, otherwise null
+	 * @throws {Error} If there is an error retrieving the data
+	 */
+    async getUser(username) {
+        return this.data.users.find((u) => u.username === username);
+    }
+
+    /**
+    * Get all users
+    * This method retrieves all user records from the data.
+    * @return {Promise<Array>} Array of user objects
+    * @throws {Error} If there is an error retrieving the data
+    */
+    async getAllUsers() {
+        try {
+            return this.data.users;
+        } catch (error) {
+            console.error("Error getting all users:", error);
+            throw error;
+        }
+    }
+
+    /**
+	 * Add or update user
+	 * This method saves a user object to the data.
+	 * If the user already exists, it updates their information;
+	 * otherwise, it creates a new user with a unique ID.
+	 * @param {Object} user - User object containing username, password, role, etc.
+	 * @return {Promise<Object>} Saved user object with ID and timestamps
+	 * @throws {Error} If there is an error saving the user
+	 */
+    async saveUser(user) {
+        try {
+            const existingIndex = this.data.users.findIndex((u) => u.username === user.username);
+            const userData = {
+                ...user,
+                updatedAt: new Date().toISOString(),
+            };
+
+            if (existingIndex >= 0) {
+                this.data.users[existingIndex] = {
+                    ...this.data.users[existingIndex],
+                    ...userData
+                };
+            } else {
+                userData.id = uuidv4();
+                userData.createdAt = new Date().toISOString();
+                this.data.users.push(userData);
+            }
+            await this.saveData();
+            return userData;
+        } catch (error) {
+            console.error("Error saving user:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete user by username
+     * This method removes a user from the data by their username.
+     * @param {string} username - Username of the user to delete
+     * @return {Promise<boolean>} True if deletion was successful, otherwise false
+     * @throws {Error} If there is an error deleting the user
+     */
+    async deleteUser(username) {
+        try {
+            const index = this.data.users.findIndex((u) => u.username === username);
+            if (index === -1) return false;
+
+            this.data.users.splice(index, 1);
+            await this.saveData();
+            return true;
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            return false;
+        }
+    }
+
     /**
 	 * Close the storage provider
 	 * This method is a placeholder for any cleanup operations needed
@@ -409,6 +466,50 @@ class FileSystemStorage extends IFirmwareStorage {
 	 */
     async close() {
         console.log("FileSystem storage closed");
+    }
+
+    /** --- Extra local helper methods --- */
+
+    /**
+	 * Helper method to apply filters (stable versions and limit)
+	 * @param {Array} firmwares - Array of firmware objects
+	 * @param {Object} options - Filter options
+	 * @param {number|null} options.limit - Maximum number of results to return
+	 * @param {boolean} options.onlyStable - Whether to filter only stable versions
+	 * @param {boolean} options.minimal - Whether to return minimal response (id, version, sha1 only)
+	 * @return {Array} Filtered array of firmware objects
+	 */
+    applyFilters(firmwares, options = {}) {
+        let filtered = firmwares;
+
+        // Filter stable versions if requested
+        if (options.onlyStable) {
+            filtered = filtered.filter((fw) => {
+                try {
+                    return semver.prerelease(fw.version) === null;
+                } catch (error) {
+                    // If version is not valid semver, exclude it when filtering for stable
+                    console.warn(`Invalid semver version: ${fw.version}`);
+                    return false;
+                }
+            });
+        }
+
+        // Apply limit if specified
+        if (options.limit && options.limit > 0) {
+            filtered = filtered.slice(0, options.limit);
+        }
+
+        // Apply minimal formatting if requested
+        if (options.minimal) {
+            filtered = filtered.map((fw) => ({
+                id: fw.id,
+                version: fw.version,
+                sha1: fw.sha1,
+            }));
+        }
+
+        return filtered;
     }
 }
 

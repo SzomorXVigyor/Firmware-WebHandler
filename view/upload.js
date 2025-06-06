@@ -44,8 +44,8 @@ const renderUploadPage = (req, res) => {
                                 <div class="mb-4">
                                     <label for="firmwareFile" class="form-label">Firmware File</label>
                                     <input type="file" class="form-control" id="firmwareFile" required
-                                           accept=".bin,.hex,.elf,.ino,.cpp,.c,.h">
-                                    <div class="form-text">Supported formats: .bin, .hex, .elf, .ino, .cpp, .c, .h (Max size: 50MB)</div>
+                                           accept="*">
+                                    <div class="form-text" id="supported-formats">Supported formats: all)</div>
                                 </div>
                                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                     <button type="button" class="btn btn-outline-secondary me-md-2" onclick="resetForm()">
@@ -86,7 +86,7 @@ const renderUploadPage = (req, res) => {
     const html = generatePageWrapper(content, {
         title: "Firmware Management Server - Upload",
         activePage: "upload",
-        isUploadPage: true,
+        pageCSS: ["/css/upload.css"],
         pageScripts: ["/js/upload.js"],
     });
 

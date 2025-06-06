@@ -1,0 +1,49 @@
+/* Device Type Dropdown Styles - Bootstrap Enhanced */
+
+/* Ensure the parent container has relative positioning for Bootstrap dropdown */
+.mb-3:has(#deviceType) {
+    position: relative;
+}
+
+/* Style adjustments for the input when dropdown is active */
+#deviceType:focus {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Override Bootstrap dropdown-menu display when active */
+#deviceTypeDropdown.show {
+    display: block !important;
+}
+
+/* Custom styling for the dropdown to match the input */
+#deviceTypeDropdown {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Ensure dropdown items have proper cursor */
+#deviceTypeDropdown .dropdown-item {
+    cursor: pointer;
+}
+
+/* Custom scrollbar styling for webkit browsers */
+#deviceTypeDropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+#deviceTypeDropdown::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 3px;
+}
+
+#deviceTypeDropdown::-webkit-scrollbar-thumb {
+    background: #dee2e6;
+    border-radius: 3px;
+}
+
+#deviceTypeDropdown::-webkit-scrollbar-thumb:hover {
+    background: #adb5bd;
+}
