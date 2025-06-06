@@ -36,6 +36,9 @@ module.exports = {
     // CORS configuration
     ALLOWED_ORIGINS: process.env.CORS_ORIGIN && process.env.CORS_ORIGIN.trim() !== "" ? process.env.CORS_ORIGIN.split(",").map((type) => type.trim()) : false,
 
+    // Localization
+    LOCALE: process.env.LOCALE || "en-US",
+
     // Logging
     LOG_LEVEL: process.env.LOG_LEVEL || "info",
 
@@ -45,6 +48,7 @@ module.exports = {
             MAX_FILE_SIZE: this.MAX_FILE_SIZE,
             LOG_LEVEL: this.LOG_LEVEL,
             ALLOWED_FILE_TYPES: this.ALLOWED_FILE_TYPES,
+            LOCALE: this.LOCALE,
         };
     },
 };

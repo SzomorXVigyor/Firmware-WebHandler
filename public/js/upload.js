@@ -242,7 +242,7 @@ async function loadRecentUploads() {
         const firmwares = await response.json();
 
         if (response.ok) {
-            displayRecentUploads(firmwares);
+            ConfigManager.onReady(() => {displayRecentUploads(firmwares)});
         }
     } catch (error) {
         console.error("Error loading recent uploads:", error);

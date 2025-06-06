@@ -2,6 +2,7 @@ const GLOBAL_CONFIG = {
     MAX_FILE_SIZE: 104857600, // 100MB
     LOG_LEVEL: "info",
     ALLOWED_FILE_TYPES: [],
+    LOCALE: "en-US",
 };
 
 // ConfigManager handles fetching config and queueing dependent functions

@@ -132,9 +132,9 @@ function displayFirmwares(firmwares) {
         }, {});
 
         if (currentView === "list") {
-            displayFirmwaresListView(grouped);
+            ConfigManager.onReady(() => {displayFirmwaresListView(grouped)});
         } else {
-            displayFirmwaresGridView(grouped);
+            ConfigManager.onReady(() => {displayFirmwaresGridView(grouped)});
         }
 
         resolve();

@@ -41,7 +41,7 @@ async function loadUserProfile() {
 
         if (response.ok) {
             currentUserProfile = await response.json();
-            displayUserProfile(currentUserProfile);
+            ConfigManager.onReady(() => {displayUserProfile(currentUserProfile)});
         } else if (response.status === 401 || response.status === 403) {
             handleAuthError();
         } else {
@@ -82,7 +82,13 @@ function displayUserProfile(profile) {
                     </div>
                     <div class="col-sm-6">
                         <strong>Last Login:</strong><br>
-                        <small>${profile.lastLogin ? formatDate(profile.lastLogin) : "Never"}</small>
+                        <small>${profile.lastLogin ? formatDate(profile.lastLogin, {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric"
+    }) : "Never"}</small>
                     </div>
                 </div>
             </div>
@@ -190,7 +196,7 @@ async function loadUsers() {
 
         if (response.ok) {
             allUsers = await response.json();
-            displayUsers(allUsers);
+            ConfigManager.onReady(() => {displayUsers(allUsers)});
         } else if (response.status === 401) {
             handleAuthError();
         } else {
