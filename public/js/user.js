@@ -88,7 +88,8 @@ function displayUserProfile(profile) {
         day: "numeric",
         hour: "numeric",
         minute: "numeric"
-    }) : "Never"}</small>
+    }) : "Never"}
+                        </small>
                     </div>
                 </div>
             </div>
@@ -244,7 +245,7 @@ function displayUsers(users) {
                 </td>
                 <td><span class="badge ${roleClass}">${user.role}</span></td>
                 <td><small>${formatDate(user.createdAt)}</small></td>
-                <td><small>${user.lastLogin ? formatDate(user.lastLogin) : "Never"}</small></td>
+                <td><small>${user.lastLogin ? formatDate(user.lastLogin, { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }) : "Never"}</small></td>
                 <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">
                         ${
