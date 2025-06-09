@@ -1,6 +1,6 @@
 {
 	"name": "firmware-webmanager",
-	"version": "1.3.2",
+	"version": "1.3.3",
 	"description": "Web service for handle multi device firmware files and indexes.",
 	"main": "index.js",
 	"repository": "https://github.com/SzomorXVigyor/Firmware-WebManager",
