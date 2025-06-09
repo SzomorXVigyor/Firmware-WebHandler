@@ -171,19 +171,19 @@ jobs:
 
           ### 📦 Docker Image
           ```bash
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+          docker pull ${{ env.REGISTRY }}/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):${{ steps.version.outputs.version }}
           ```
 
           ### 🔄 Changes in this release:
           ${{ steps.changelog.outputs.changelog }}
 
           ### 🐳 Available Docker Tags:
-          - `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest`
-          - `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}`
+          - `${{ env.REGISTRY }}/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):latest`
+          - `${{ env.REGISTRY }}/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):${{ steps.version.outputs.version }}`
 
           ### 🚀 Quick Start:
           ```bash
-          docker run -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+          docker run -p 3000:3000 ${{ env.REGISTRY }}/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):${{ steps.version.outputs.version }}
           ```
 
           Visit http://localhost:3000 to access the web interface.
