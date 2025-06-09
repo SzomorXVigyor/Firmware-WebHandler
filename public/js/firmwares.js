@@ -23,13 +23,6 @@ function setupEventListeners() {
     document.getElementById("versionFilter").addEventListener("input", debounce(onFilterChange, 300));
     document.getElementById("stableOnlyFilter").addEventListener("change", onFilterChange);
     document.getElementById("sortFilter").addEventListener("change", onFilterChange);
-
-    // Global search enter key support
-    document.getElementById("globalSearch").addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            onFilterChange();
-        }
-    });
 }
 
 function toggleView() {
@@ -95,7 +88,7 @@ async function loadFirmwares() {
         }
     })();
 
-    return AuthUpdateNetworkManager.register(operation, "loadFirmwares");
+    return AuthUIUpdateManager.register(operation, "loadFirmwares");
 }
 
 function displayFirmwares(firmwares) {
@@ -752,7 +745,7 @@ function applyVersionFilter(firmwares, versionPattern) {
 
 function applyFiltersAndDisplay() {
     filteredFirmwares = applyFilters(allFirmwares);
-    AuthUpdateNetworkManager.register(displayFirmwares(filteredFirmwares), "renderFirmwares");
+    AuthUIUpdateManager.register(displayFirmwares(filteredFirmwares), "renderFirmwares");
     updateResultsSummary();
 }
 

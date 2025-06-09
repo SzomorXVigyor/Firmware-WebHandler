@@ -44,7 +44,7 @@ const generateNavBase = (navItemsHtml) => {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">${navItemsHtml}
                 </ul>
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto  mt-1">
                     <li class="nav-item" id="loginNavItem">
                         <button class="btn btn-outline-light w-100" id="loginBtn" onclick="toggleAuth()">
                             <i class="fas fa-sign-in-alt me-1"></i>Login

@@ -1,6 +1,5 @@
 // User Profile and Management functionality
 
-let currentUserProfile = null;
 let allUsers = [];
 
 // Initialize page
@@ -14,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	    loadUsers();
     });
     setupEventListeners();
-    updateUIForUserRole();
 });
 
 function setupEventListeners() {
@@ -88,7 +86,8 @@ function displayUserProfile(profile) {
         day: "numeric",
         hour: "numeric",
         minute: "numeric"
-    }) : "Never"}</small>
+    }) : "Never"}
+                        </small>
                     </div>
                 </div>
             </div>
@@ -108,21 +107,6 @@ function displayUserProfile(profile) {
             }
         </style>
     `;
-
-    // Update UI based on user role
-    updateUIForUserRole();
-}
-
-function updateUIForUserRole() {
-    if (!currentUserProfile) return;
-
-    const currentAdmin = isAdmin();
-
-    // Show/hide admin sections
-    const adminElements = document.querySelectorAll(".admin-only");
-    adminElements.forEach((el) => {
-        el.style.display = currentAdmin ? "block" : "none";
-    });
 }
 
 async function handlePasswordChange(event) {
@@ -244,7 +228,7 @@ function displayUsers(users) {
                 </td>
                 <td><span class="badge ${roleClass}">${user.role}</span></td>
                 <td><small>${formatDate(user.createdAt)}</small></td>
-                <td><small>${user.lastLogin ? formatDate(user.lastLogin) : "Never"}</small></td>
+                <td><small>${user.lastLogin ? formatDate(user.lastLogin, { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }) : "Never"}</small></td>
                 <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">
                         ${
@@ -435,11 +419,6 @@ async function deleteUser(username) {
         console.error("User deletion error:", error);
         showAlert("Failed to delete user", "danger");
     }
-}
-
-// Helper functions
-function isAdmin() {
-    return currentUserProfile && (currentUserProfile.role === "admin");
 }
 
 function canDeleteUser(user) {
