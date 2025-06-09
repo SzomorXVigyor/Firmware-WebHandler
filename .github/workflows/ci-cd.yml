@@ -30,6 +30,22 @@ jobs:
     - name: Install dependencies
       run: yarn install --frozen-lockfile
 
+    - name: Minify JavaScript and CSS in public folder
+      run: |
+        echo "Minifying public folder assets..."
+
+        # Install CLI tools if not already part of the project
+        yarn add --dev terser clean-css-cli
+
+        # Minify .js without changing variable names
+        find public -name "*.js" -exec sh -c 'for f; do npx terser "$f" --compress --mangle=false --output "$f"; done' sh {} +
+
+        # Minify .css files
+        find public -name "*.css" -exec sh -c 'for f; do npx cleancss -o "$f" "$f"; done' sh {} +
+
+        echo "Minification complete."
+
+
     - name: Run linting
       run: |
         if yarn run --silent lint 2>/dev/null; then
@@ -38,12 +54,6 @@ jobs:
           echo "No lint script found, skipping..."
         fi
       continue-on-error: true
-
-    - name: Build application
-      run: |
-        echo "Building application..."
-        # Add any build steps if needed
-        echo "Build completed successfully"
 
   # Deploy job - only runs on main branch pushes
   deploy:
@@ -76,11 +86,11 @@ jobs:
         # Install CLI tools if not already part of the project
         yarn add --dev terser clean-css-cli
 
-        # Minify all .js files
-        find public -name "*.js" -exec sh -c 'for f; do terser "$f" --compress --mangle=false --output "$f"; done' sh {} +
+        # Minify .js without changing variable names
+        find public -name "*.js" -exec sh -c 'for f; do npx terser "$f" --compress --mangle=false --output "$f"; done' sh {} +
 
-        # Minify all .css files
-        find public -name "*.css" -exec sh -c 'for f; do cleancss -o "$f" "$f"; done' sh {} +
+        # Minify .css files
+        find public -name "*.css" -exec sh -c 'for f; do npx cleancss -o "$f" "$f"; done' sh {} +
 
         echo "Minification complete."
 
