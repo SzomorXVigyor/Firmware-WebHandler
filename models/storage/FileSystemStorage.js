@@ -11,9 +11,10 @@ const IStorage = require("../interfaces/IStorage");
 class FileSystemStorage extends IStorage {
     constructor(config) {
         super();
-        this.analyticsFile = config.ANALYTICS || "./data/analytics.json";
-        this.dataFile = config.DATA_FILE || "./data/firmware_data.json";
-        this.uploadDir = config.UPLOAD_DIR || "./data/uploads";
+        const dataPath = config.DATA_DIR || "./data/";
+        this.analyticsFile = path.join(dataPath, "analytics.json");
+        this.dataFile = path.join(dataPath, "firmware_data.json");
+        this.uploadDir = path.join(dataPath, "uploads");
         this.data = null;
     }
     /**
