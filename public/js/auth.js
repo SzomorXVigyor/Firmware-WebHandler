@@ -1,10 +1,10 @@
 let authToken = null;
-let currentUser = null;
+let currentUserProfile = null;
 
 // Check for stored auth on page load
 if (typeof Storage !== "undefined") {
     authToken = localStorage.getItem("authToken");
-    currentUser = localStorage.getItem("currentUser");
+    currentUserProfile = JSON.parse(localStorage.getItem("currentUserProfile")) || null;
 }
 
 function handleAuthError() {
@@ -17,19 +17,26 @@ function updateAuthUI() {
     const logoutNavItem = document.getElementById("logoutNavItem");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    if (authToken) {
+    if (authToken && currentUserProfile) {
         // Hide login button, show logout button
         if (loginNavItem) loginNavItem.classList.add("d-none");
         if (logoutNavItem) logoutNavItem.classList.remove("d-none");
 
         // Update logout button text with username
         if (logoutBtn) {
-            logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt me-1"></i>Logout (${currentUser})`;
+            logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt me-1"></i>Logout (${currentUserProfile.username})`;
         }
-
         // Show user-only elements
         const userElements = document.querySelectorAll(".user-only");
         userElements.forEach((el) => (el.style.display = "block"));
+
+        // Show admin-only elements if user is admin
+        const adminElements = document.querySelectorAll(".admin-only");
+        if (isAdmin()) {
+            adminElements.forEach((el) => (el.style.display = "block"));
+        } else {
+            adminElements.forEach((el) => (el.style.display = "none"));
+        }
     } else {
         // Show login button, hide logout button
         if (loginNavItem) loginNavItem.classList.remove("d-none");
@@ -38,6 +45,10 @@ function updateAuthUI() {
         // Hide user-only elements
         const userElements = document.querySelectorAll(".user-only");
         userElements.forEach((el) => (el.style.display = "none"));
+
+        // Hide admin-only elements
+        const adminElements = document.querySelectorAll(".admin-only");
+        adminElements.forEach((el) => (el.style.display = "none"));
     }
 }
 
@@ -64,14 +75,15 @@ async function login() {
 
         if (response.ok) {
             authToken = data.token;
-            currentUser = data.user?.username || "Admin";
+            currentUserProfile = data.user;
 
             if (typeof Storage !== "undefined") {
                 localStorage.setItem("authToken", authToken);
-                localStorage.setItem("currentUser", currentUser);
+                localStorage.setItem("currentUserProfile", JSON.stringify(currentUserProfile));
             }
 
             updateAuthUI();
+
             bootstrap.Modal.getInstance(document.getElementById("loginModal")).hide();
             document.getElementById("loginForm").reset();
             showAlert("Login successful!", "success");
@@ -86,11 +98,11 @@ async function login() {
 
 function logout() {
     authToken = null;
-    currentUser = null;
+    currentUserProfile = null;
 
     if (typeof Storage !== "undefined") {
         localStorage.removeItem("authToken");
-        localStorage.removeItem("currentUser");
+        localStorage.removeItem("currentUserProfile");
     }
 
     // Redirect to home
@@ -106,13 +118,31 @@ function checkAuthAndRedirect(url) {
     }
 }
 
+// Helper functions
+function isAdmin() {
+    return currentUserProfile && (currentUserProfile.role === "admin");
+}
+
 // Check auth status when page loads
 document.addEventListener("DOMContentLoaded", () => {
+    // Delegate 'Enter' key to login button if modal is visible
+    document.addEventListener("keydown", (e) => {
+        const loginModal = document.getElementById("loginModal");
+
+        const isVisible = loginModal && loginModal.classList.contains("show");
+        const isEnter = e.key === "Enter";
+
+        if (isVisible && isEnter) {
+            e.preventDefault(); // Prevent form submission or default behavior
+            document.querySelector("#loginModal .btn.btn-primary")?.click();
+        }
+    });
+    // Initial UI update
     updateAuthUI();
 });
 
 // Create a network operation registry
-const AuthUpdateNetworkManager = {
+const AuthUIUpdateManager = {
     operations: new Set(),
 
     // Register a network operation

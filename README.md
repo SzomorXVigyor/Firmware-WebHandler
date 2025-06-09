@@ -32,7 +32,6 @@ A comprehensive web-based firmware management system with REST API for IoT devic
 
 ### 🌐 **Modern Web Interface**
 - Responsive Bootstrap-based UI
-- Drag-and-drop file uploads
 - Real-time firmware browsing and filtering
 - Mobile-friendly design
 
@@ -50,7 +49,7 @@ A comprehensive web-based firmware management system with REST API for IoT devic
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 16+ and yarn
+- Node.js 18+ and yarn
 - At least 1GB free disk space for firmware storage
 
 ### Installation
@@ -155,6 +154,11 @@ DELETE /api/user/{username}        # (admin only)
    - Filter by device type
    - View version history and metadata
 
+4. **Manage Users**
+   - See own profile data
+   - Change password
+   - Create, edit adn delete users as admin
+
 ### 🤖 **For Hardware Devices**
 
 #### Check for Updates
@@ -224,7 +228,7 @@ Device types are automatically created when uploading firmware. No pre-configura
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ### Getting Help
-- Check the [API Documentation](API_Documentation.md)
+- Check the [API Documentation](API.md)
 - Review server logs for error messages
 - Ensure all dependencies are installed correctly
 - Verify file permissions for upload directory or database access

@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
+const UserRoles = require("../models/UserRoles");
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -30,7 +31,7 @@ const authenticateAdminToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({ error: "Invalid token" });
         }
-        if (user.role !== "admin") {
+        if (UserRoles.hasPermission(user.role, UserRoles.ROLES.ADMIN) === false) {
             return res.status(403).json({ error: "Admin access required" });
         }
         req.user = user;

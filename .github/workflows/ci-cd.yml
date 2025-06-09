@@ -39,11 +39,17 @@ jobs:
         fi
       continue-on-error: true
 
-    - name: Build application
+    - name: Minify JavaScript and CSS in public folder
       run: |
-        echo "Building application..."
-        # Add any build steps if needed
-        echo "Build completed successfully"
+        echo "Minifying public folder assets..."
+
+        # Install CLI tools if not already part of the project
+        yarn add --dev terser
+
+        # Minify .js without changing variable names
+        find public -name "*.js" -exec sh -c 'for f; do npx terser "$f" --compress --output "$f"; done' sh {} +
+
+        echo "Minification complete."
 
   # Deploy job - only runs on main branch pushes
   deploy:
@@ -68,6 +74,18 @@ jobs:
 
     - name: Install dependencies
       run: yarn install --frozen-lockfile
+
+    - name: Minify JavaScript and CSS in public folder
+      run: |
+        echo "Minifying public folder assets..."
+
+        # Install CLI tools if not already part of the project
+        yarn add --dev terser clean-css-cli
+
+        # Minify .js without changing variable names
+        find public -name "*.js" -exec sh -c 'for f; do npx terser "$f" --compress --output "$f"; done' sh {} +
+
+        echo "Minification complete."
 
     - name: Get version from package.json
       id: version

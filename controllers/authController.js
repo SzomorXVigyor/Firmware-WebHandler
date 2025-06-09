@@ -37,7 +37,9 @@ const login = async (req, res) => {
             user: {
                 id: user.id,
                 username: user.username,
-                role: user.role || "bot",
+                role: user.role,
+                createdAt: user.createdAt,
+                lastLogin: user.lastLogin,
             },
         });
     } catch (error) {
