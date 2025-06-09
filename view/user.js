@@ -18,8 +18,8 @@ const renderUserPage = (req, res) => {
                     </h2>
 
                     <!-- Profile Information Card -->
-                    <div class="row">
-                        <div class="col-lg-6 mb-4">
+                    <div class="row mb-4">
+                        <div class="col-lg-6">
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="mb-0">
@@ -39,7 +39,7 @@ const renderUserPage = (req, res) => {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 mb-4">
+                        <div class="col-lg-6">
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="mb-0">
@@ -74,7 +74,7 @@ const renderUserPage = (req, res) => {
                     </div>
 
                     <!-- User Management Card (Admin Only) -->
-                    <div class="card admin-only mb-4" style="display: none;">
+                    <div class="card admin-only" style="display: none;">
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">
@@ -88,8 +88,8 @@ const renderUserPage = (req, res) => {
                         </div>
                         <div class="card-body">
                             <!-- User Search and Filters -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
                                     <div class="input-group">
                                         <span class="input-group-text">
                                             <i class="fas fa-search"></i>
@@ -97,7 +97,7 @@ const renderUserPage = (req, res) => {
                                         <input type="text" class="form-control" id="userSearch" placeholder="Search users...">
                                     </div>
                                 </div>
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-3">
                                     <select class="form-select" id="roleFilter">
                                         <option value="">All Roles</option>
                                         <option value="bot">Bot</option>
@@ -105,7 +105,7 @@ const renderUserPage = (req, res) => {
                                         <option value="admin">Admin</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-3">
                                     <button type="button" class="btn btn-outline-secondary w-100" onclick="loadUsers()">
                                         <i class="fas fa-sync-alt me-1"></i>Refresh
                                     </button>

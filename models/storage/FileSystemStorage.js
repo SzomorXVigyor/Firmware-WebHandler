@@ -161,7 +161,7 @@ class FileSystemStorage extends IStorage {
     async getFirmwaresByDevice(deviceType, options = {}) {
         const firmwares = this.data.firmwares.filter((f) => f.deviceType === deviceType).sort((a, b) => semver.rcompare(a.version, b.version));
 
-        return this.deepClone(this.applyFilters(firmwares, options));
+        return this.applyFilters(firmwares, options);
     }
 
     /**
@@ -178,7 +178,7 @@ class FileSystemStorage extends IStorage {
     async getAllFirmwares(options = {}) {
         const firmwares = this.data.firmwares.sort((a, b) => new Date(b.uploadDate || b.createdAt) - new Date(a.uploadDate || a.createdAt));
 
-        return this.deepClone(this.applyFilters(firmwares, options));
+        return this.applyFilters(firmwares, options);
     }
 
     /**
@@ -190,7 +190,7 @@ class FileSystemStorage extends IStorage {
 	 */
     async getDeviceTypes() {
         const types = [...new Set(this.data.firmwares.map((f) => f.deviceType))];
-        return this.deepClone(types.sort());
+        return types.sort();
     }
 
     /**
@@ -201,7 +201,7 @@ class FileSystemStorage extends IStorage {
 	 * @throws {Error} If there is an error retrieving the data
 	 */
     async getFirmwareById(id) {
-        return this.deepClone(this.data.firmwares.find((f) => f.id === id));
+        return this.data.firmwares.find((f) => f.id === id);
     }
 
     /**
@@ -224,7 +224,7 @@ class FileSystemStorage extends IStorage {
             updatedAt: new Date().toISOString(),
         };
         await this.saveData();
-        return this.deepClone(this.data.firmwares[index]);
+        return this.data.firmwares[index];
     }
 
     /**
@@ -275,7 +275,7 @@ class FileSystemStorage extends IStorage {
 				fw.version.toLowerCase().includes(searchTerm),
         );
 
-        return this.deepClone(this.applyFilters(firmwares, options));
+        return this.applyFilters(firmwares, options);
     }
 
     /**
@@ -383,7 +383,7 @@ class FileSystemStorage extends IStorage {
 	 * @throws {Error} If there is an error retrieving the data
 	 */
     async getUser(username) {
-        return this.deepClone(this.data.users.find((u) => u.username === username));
+        return this.data.users.find((u) => u.username === username);
     }
 
     /**
@@ -394,7 +394,7 @@ class FileSystemStorage extends IStorage {
     */
     async getAllUsers() {
         try {
-            return this.deepClone(this.data.users);
+            return this.data.users;
         } catch (error) {
             console.error("Error getting all users:", error);
             throw error;
@@ -510,16 +510,6 @@ class FileSystemStorage extends IStorage {
         }
 
         return filtered;
-    }
-
-    /**
-     * Deep clone an object
-     * This method uses structuredClone if available, otherwise falls back to JSON serialization.
-     * @param {Object} obj - Object to clone
-     * @return {Object} Deep cloned object
-     */
-    deepClone(obj) {
-        return structuredClone ? structuredClone(obj) : JSON.parse(JSON.stringify(obj));
     }
 }
 

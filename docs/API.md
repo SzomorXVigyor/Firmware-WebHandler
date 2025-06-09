@@ -38,9 +38,7 @@ Authenticate user and receive JWT token.
   "user": {
     "id": "1",
     "username": "admin",
-    "role": "admin",
-    "createdat": "2024-12-21T10:30:45.123Z",
-    "lastLogin": "2024-12-20T15:20:30.456Z"
+    "role": "admin"
   }
 }
 ```
@@ -589,13 +587,6 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-**Response (Error - 400):**
-```json
-{
-  "error": "Invalid role provided"
-}
-```
-
 **Response (Error - 409):**
 ```json
 {
@@ -639,13 +630,6 @@ Authorization: Bearer <jwt_token>
 ```json
 {
   "error": "Username are required as a request paramter"
-}
-```
-
-**Response (Error - 400):**
-```json
-{
-  "error": "Invalid role provided"
 }
 ```
 
