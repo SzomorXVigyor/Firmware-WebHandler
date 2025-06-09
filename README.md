@@ -49,7 +49,7 @@ A comprehensive web-based firmware management system with REST API for IoT devic
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 16+ and yarn
+- Node.js 18+ and yarn
 - At least 1GB free disk space for firmware storage
 
 ### Installation
