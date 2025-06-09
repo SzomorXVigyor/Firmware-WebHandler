@@ -8,8 +8,7 @@ module.exports = {
     STORAGE_TYPE: process.env.STORAGE_TYPE || "filesystem", // "filesystem", "mongodb", or "postgresql"
 
     // FileSystem storage configuration
-    UPLOAD_DIR: process.env.UPLOAD_DIR || "./data/uploads",
-    DATA_FILE: process.env.DATA_FILE || "./data/firmware_data.json",
+    DATA_DIR: process.env.DATA_DIR || "./data/",
 
     // MongoDB storage configuration
     MONGODB_URI: process.env.MONGODB_URI || "mongodb://localhost:27017",
