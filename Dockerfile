@@ -20,7 +20,7 @@ COPY . .
 
 # Create data directory with proper permissions
 RUN mkdir -p /app/data/uploads && \
-    chown -R nodejs:nodejs /app/data
+    chown -R nodejs:nodejs /app/data && \
     chmod -R u+rw /app/data
 
 # Switch to non-root user
