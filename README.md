@@ -1,6 +1,6 @@
 <h1 align="center">🔧 A Simple Firmware Management Server </h1>
 <p align="center">
-<img alt="Node Version" src="https://img.shields.io/badge/Node.js-v18+-green">
+<img alt="Node Version" src="https://img.shields.io/badge/Node.js-v20.19+-green">
 <img alt="Express" src="https://img.shields.io/badge/Express-4.18+-blue">
 <img alt="Bootstrap" src="https://img.shields.io/badge/Bootstrap-5.3-purple">
 <img alt="Storage Types" src="https://img.shields.io/badge/Storage-FileSystem%20%7C%20MongoDB%20%7C%20PostgreSQL-purple">
@@ -49,7 +49,7 @@ A comprehensive web-based firmware management system with REST API for IoT devic
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and yarn
+- Node.js 20.19+ or 22.9+ and yarn
 - At least 1GB free disk space for firmware storage
 
 ### Installation

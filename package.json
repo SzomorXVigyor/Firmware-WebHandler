@@ -1,14 +1,14 @@
 {
 	"name": "firmware-webmanager",
-	"version": "1.3.1",
+	"version": "1.3.2",
 	"description": "Web service for handle multi device firmware files and indexes.",
 	"main": "index.js",
 	"repository": "https://github.com/SzomorXVigyor/Firmware-WebManager",
 	"author": "Aranyalma2",
 	"license": "MIT",
 	"scripts": {
-		"start": "node --env-file=.env app.js",
-		"dev": "nodemon --env-file=.env app.js",
+		"start": "node --env-file-if-exists=.env app.js",
+		"dev": "nodemon --env-file-if-exists=.env app.js",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"lint:check": "eslint . --max-warnings 0"
@@ -40,8 +40,8 @@
 		"nodemon": "^3.1.10"
 	},
 	"engines": {
-		"node": ">=16.0.0",
-		"yarn": ">=1.22.0"
+		"node": ">=20.19.0",
+		"yarn": ">=1.22.22"
 	},
 	"nodemonConfig": {
 		"ignore": [
