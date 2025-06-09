@@ -69,6 +69,21 @@ jobs:
     - name: Install dependencies
       run: yarn install --frozen-lockfile
 
+    - name: Minify JavaScript and CSS in public folder
+      run: |
+        echo "Minifying public folder assets..."
+
+        # Install CLI tools if not already part of the project
+        yarn add --dev terser clean-css-cli
+
+        # Minify all .js files
+        find public -name "*.js" -exec sh -c 'for f; do terser "$f" --compress --mangle=false --output "$f"; done' sh {} +
+
+        # Minify all .css files
+        find public -name "*.css" -exec sh -c 'for f; do cleancss -o "$f" "$f"; done' sh {} +
+
+        echo "Minification complete."
+
     - name: Get version from package.json
       id: version
       run: |
