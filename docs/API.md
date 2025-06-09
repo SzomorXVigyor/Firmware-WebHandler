@@ -38,7 +38,9 @@ Authenticate user and receive JWT token.
   "user": {
     "id": "1",
     "username": "admin",
-    "role": "admin"
+    "role": "admin",
+    "createdat": "2024-12-21T10:30:45.123Z",
+    "lastLogin": "2024-12-20T15:20:30.456Z"
   }
 }
 ```
