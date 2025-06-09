@@ -35,13 +35,10 @@ jobs:
         echo "Minifying public folder assets..."
 
         # Install CLI tools if not already part of the project
-        yarn add --dev terser clean-css-cli
+        yarn add --dev terser
 
         # Minify .js without changing variable names
-        find public -name "*.js" -exec sh -c 'for f; do npx terser "$f" --compress --mangle=false --output "$f"; done' sh {} +
-
-        # Minify .css files
-        find public -name "*.css" -exec sh -c 'for f; do npx cleancss -o "$f" "$f"; done' sh {} +
+        find public -name "*.js" -exec sh -c 'for f; do npx terser "$f" --compress --output "$f"; done' sh {} +
 
         echo "Minification complete."
 
