@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: ${{ github.repository | toLower }}
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   # Build and test job for all triggers
