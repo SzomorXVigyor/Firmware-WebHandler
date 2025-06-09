@@ -587,6 +587,13 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
+**Response (Error - 400):**
+```json
+{
+  "error": "Invalid role provided"
+}
+```
+
 **Response (Error - 409):**
 ```json
 {
@@ -630,6 +637,13 @@ Authorization: Bearer <jwt_token>
 ```json
 {
   "error": "Username are required as a request paramter"
+}
+```
+
+**Response (Error - 400):**
+```json
+{
+  "error": "Invalid role provided"
 }
 ```
 

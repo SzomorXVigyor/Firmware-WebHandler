@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const config = require("../config/config");
 const storageManager = require("../models/StorageManager");
+const UserRoles = require("../models/UserRoles");
 
 const getUser = async (req, res) => {
     try {
@@ -41,6 +42,10 @@ const createUser = async (req, res) => {
             return res.status(400).json({ error: "Username, password and role are required" });
         }
 
+        if ( user.role && !UserRoles.isValidRole(user.role)) {
+            return res.status(400).json({ error: "Invalid role provided" });
+        }
+
         const existingUser = await storageManager.getUser(user.username);
 
         if (existingUser) {
@@ -67,6 +72,10 @@ const updateUser = async (req, res) => {
 
         if (!username) {
             return res.status(400).json({ error: "Username are required as a request paramter" });
+        }
+
+        if ( user.role && !UserRoles.isValidRole(user.role)) {
+            return res.status(400).json({ error: "Invalid role provided" });
         }
 
         const result = await storageManager.saveUser(user);
@@ -107,7 +116,7 @@ const changePassword = async (req, res) => {
     try {
         const { currentPassword	, newPassword } = req.body;
 
-        if (!currentPassword	 || !newPassword) {
+        if (!currentPassword || !newPassword) {
             return res.status(400).json({ error: "Old password and new password are required" });
         }
 
